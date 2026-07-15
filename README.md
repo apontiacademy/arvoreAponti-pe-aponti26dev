@@ -1,32 +1,39 @@
-# React + TypeScript + Vite
+# ApontiLinkCenter
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Internal tool for managing "link tree" pages (Linktree/Bento.me/Beacons.ai style) — create, edit, and publish pages made of link/social/media blocks, with drag-and-drop reordering, per-page theming, and analytics. Access is restricted to authenticated employees only; see `CLAUDE.md` for the full architecture, domain model, and current build status.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+React 19, Vite 8, TypeScript, Tailwind CSS v4, shadcn/ui (`base-nova` style on `@base-ui/react`), React Router v7, TanStack Query, Supabase (Postgres + Auth), Vitest + Testing Library, oxlint.
 
-## React Compiler
+## Prerequisites
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 22+
+- npm
+- A Supabase project (URL + anon key) for `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
 
-## Expanding the Oxlint configuration
+## Setup
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+cp .env.example .env   # then fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Development
+
+```bash
+npm run dev         # start the Vite dev server
+npm run build       # type-check (tsc -b) and build for production
+npm run preview     # preview the production build locally
+npm run lint        # oxlint
+npm run typecheck   # tsc -b --noEmit
+npm test            # vitest run
+```
+
+## Database
+
+Supabase schema and RLS policies are versioned as SQL under `supabase/migrations/`. There is no local Supabase CLI setup yet — migrations are applied directly to the remote project.
+
+## More detail
+
+See `CLAUDE.md` for architecture, the domain model, routing, current build status, and known gaps to be aware of before extending the app.
