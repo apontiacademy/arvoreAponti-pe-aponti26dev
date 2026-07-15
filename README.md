@@ -10,13 +10,13 @@ React 19, Vite 8, TypeScript, Tailwind CSS v4, shadcn/ui (`base-nova` style on `
 
 - Node.js 22+
 - npm
-- A Supabase project (URL + anon key) for `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
+- Access to the `arvore-aponti` Supabase project (org "Aponti", region `sa-east-1`) — this is a **shared** project with the real schema and seeded data, not something you provision yourself. Get the `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` values from a teammate; don't create a new empty Supabase project, or the app will have no schema/seeded themes and nothing will work.
 
 ## Setup
 
 ```bash
 npm install
-cp .env.example .env   # then fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+cp .env.example .env   # then fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY with the shared project's values
 ```
 
 ## Development

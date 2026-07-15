@@ -24,13 +24,7 @@ React 19 + Vite 8 + TypeScript (~6.0), TailwindCSS v4 (`@tailwindcss/vite`, CSS-
 
 Package manager: npm.
 
-Real npm scripts (`package.json`):
-- `npm run dev` — Vite dev server
-- `npm run build` — `tsc -b && vite build`
-- `npm run lint` — `oxlint`
-- `npm run typecheck` — `tsc -b --noEmit`
-- `npm test` — `vitest run`
-- `npm run preview` — preview the production build
+See `README.md` for the canonical list of npm scripts (dev/build/lint/typecheck/test/preview) — don't duplicate that list here; if it drifts, update README.md and this line stays a pointer.
 
 Not yet installed/wired despite being in the original planned stack: React Hook Form + Zod, Framer Motion, Sonner. Lucide React (`lucide-react`) is installed and is shadcn's configured icon library.
 
@@ -54,7 +48,7 @@ Live project: `arvore-aponti`, Supabase org "Aponti", region `sa-east-1`. Schema
 
 Tables: `profiles` (1:1 with `auth.users`), `pages` (owned by a profile via `owner_id`), `links`, `social_links`, `analytics`, `themes` (5 seeded presets: Minimal, Dark, Glass, Corporate, Modern). Each page ("árvore") belongs to a profile and has many links/social links, one theme, and analytics events.
 
-- RLS is enabled on every table. Pattern: owner has full access (`auth.uid() = owner_id`, wrapped in a `(select auth.uid())` subselect per-policy for query-plan performance — do not regress this when adding policies), public/anon can only `select` from **published** pages and their active links/social links. `themes` is public-read. The `analytics_summary` view uses `security_invoker = true` so it respects the caller's RLS rather than the view owner's.
+- RLS is enabled on every table. Pattern: owner has full access (`auth.uid() = owner_id`, wrapped in a `(select auth.uid())` subselect per-policy for query-plan performance — do not regress this when adding policies), public/anon can only `select` from **published** pages, their active links, and all their social links. `themes` is public-read. The `analytics_summary` view uses `security_invoker = true` so it respects the caller's RLS rather than the view owner's.
 - Indexes exist on all foreign keys used in RLS lookups (`pages.owner_id`, `links.page_id`, `social_links.page_id`, `analytics.page_id`/`link_id`, `pages.theme_id`).
 - Analytics captures `event_type` (`view`|`click`), device, OS, browser, referrer, timestamp, per page and optionally per link; `analytics_summary` aggregates `total_views`/`total_clicks` per page. Public insert into `analytics` is restricted to published pages only (fixed in the second migration — the original policy allowed inserting analytics rows for unpublished/private pages, an RLS bypass).
 - Not yet built: RPC functions, triggers, most-viewed/most-clicked-link aggregates beyond the basic view.
