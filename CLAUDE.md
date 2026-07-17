@@ -6,7 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Phase 1 ("Fundação") is complete: the repo is scaffolded (Vite + React + TypeScript), Supabase Auth-gated routing is in place, the initial Supabase schema with RLS is live, and CI runs on every PR. See `docs/superpowers/plans/2026-07-15-fase-1-fundacao.md` for the full implementation log and `docs/superpowers/specs/2026-07-15-fundacao-projeto-design.md` for the original design spec. `prompt.MD` remains the original Portuguese product/tech brief.
 
-Next up is Phase 2 (Dashboard → Page CRUD → drag-and-drop editor — see "Build order" below). Before starting Page CRUD, read "Known gaps / next steps" — the `profiles` provisioning decision blocks it.
+Post-Phase-1 hardening (2026-07-17): `profiles` auto-provisioning, `useSession` error handling, and orphaned scaffold assets are resolved — see "Known gaps / next steps" for what's still open.
+
+Next up is Phase 2 (Dashboard → Page CRUD → drag-and-drop editor — see "Build order" below).
 
 ## What is being built
 
@@ -44,7 +46,8 @@ Not yet installed/wired despite being in the original planned stack: React Hook 
 
 ## Domain model (Supabase schema)
 
-Live project: `arvore-aponti`, Supabase org "Aponti", region `sa-east-1`. Schema is versioned in `supabase/migrations/` (3 migrations so far: initial schema, an analytics RLS-bypass security fix, and an RLS performance optimization) and was applied directly to the remote project via the Supabase MCP tools — **there is no local Supabase CLI setup** (no `supabase/config.toml`); see "Known gaps" below.
+Live project: `arvore-aponti`, Supabase org "Aponti", region `sa-east-1`. Schema is versioned in `supabase/migrations/` (5 migrations so far: initial schema, an analytics RLS-bypass security fix, an RLS performance optimization, a `profiles` auto-provisioning trigger on `auth.users` insert, and a follow-up revoking public EXECUTE on that trigger function) and was applied directly to the remote project via the Supabase MCP tools — **there is no local Supabase CLI setup** (no `supabase/config.toml`); see "Known gaps" below.
+- `public.handle_new_user()` (SECURITY DEFINER, `search_path = public`) derives a `username` from the email local-part and de-duplicates on `unique_violation` (retry loop, not check-then-insert, to stay race-safe). EXECUTE is revoked from `public`/`anon`/`authenticated` — it's only meant to run via the `on_auth_user_created` trigger, not as a callable RPC. Follow this same lockdown pattern for any other SECURITY DEFINER function.
 
 Tables: `profiles` (1:1 with `auth.users`), `pages` (owned by a profile via `owner_id`), `links`, `social_links`, `analytics`, `themes` (5 seeded presets: Minimal, Dark, Glass, Corporate, Modern). Each page ("árvore") belongs to a profile and has many links/social links, one theme, and analytics events.
 
@@ -76,12 +79,14 @@ Remaining, in order — don't jump ahead:
 
 ## Known gaps / next steps
 
-Read this before starting Phase 2 so it isn't rediscovered blind:
+Resolved (2026-07-17):
+- ~~No `profiles` auto-provisioning on signup~~ — fixed via `on_auth_user_created` trigger + `handle_new_user()` (migration `20260717000000_profiles_auto_provisioning.sql`); see "Domain model" above.
+- ~~Orphaned Vite demo assets~~ — `src/App.css`, `src/assets/react.svg`, `src/assets/vite.svg`, `src/assets/hero.png` removed (all unreferenced).
+- ~~`useSession` had no error handling~~ — `getSession()` rejection is now caught, exposed as an `error` field, and `isLoading` always resolves to `false` via `finally` (was getting stuck at `true`).
 
-- **No `profiles` auto-provisioning on signup.** `pages.owner_id` references `profiles.id`, but nothing creates a `profiles` row when a user signs up via Supabase Auth. Decide DB trigger (`on auth.users insert`) vs. app-level upsert-on-login before Page CRUD — it will not work without one of these.
+Still open, read before starting Phase 2:
+
 - **No local Supabase CLI setup.** `supabase/config.toml` does not exist; all schema work went straight to the remote project via the Supabase MCP tools. Consider adding `supabase init`/local dev if iterating on migrations gets painful.
-- **Orphaned Vite demo assets** (`src/App.css`, `src/assets/react.svg`, `src/assets/vite.svg`) were never deleted after the scaffold step and aren't referenced by real UI — safe to remove.
-- **`useSession` has no error handling.** `supabase.auth.getSession()` in `src/features/auth/useSession.ts` has no `.catch()`; a rejected promise will leave `isLoading` stuck at `true` instead of failing gracefully.
 - **CI is advisory, not merge-blocking.** Branch protection on `main`/`staging` could not be enabled (GitHub Free plan doesn't support required status checks on private repos). `.github/workflows/ci.yml` only triggers on `pull_request` to `develop`/`staging`/`main`, not on direct pushes.
 - Planned-but-unused deps: React Hook Form + Zod, Framer Motion, Sonner — install when the first screen that needs them is built (Page CRUD forms are the likely first consumer of RHF+Zod).
 
