@@ -11,6 +11,7 @@ export function useDuplicatePage() {
     mutationFn: async (page: Page) => {
       let suffix = 0
       let slug = `${page.slug}-copia`
+      let newPage
 
       while (true) {
         const { data, error } = await supabase
@@ -27,7 +28,10 @@ export function useDuplicatePage() {
           .select()
           .single()
 
-        if (!error) return data
+        if (!error) {
+          newPage = data
+          break
+        }
 
         if (error.code === UNIQUE_VIOLATION) {
           suffix += 1
@@ -37,6 +41,32 @@ export function useDuplicatePage() {
 
         throw error
       }
+
+      const { data: links, error: linksError } = await supabase
+        .from('links')
+        .select('*')
+        .eq('page_id', page.id)
+        .order('order', { ascending: true })
+
+      if (linksError) throw linksError
+
+      if (links && links.length > 0) {
+        const { error: insertLinksError } = await supabase.from('links').insert(
+          links.map((link) => ({
+            page_id: newPage.id,
+            type: link.type,
+            label: link.label,
+            url: link.url,
+            payload: link.payload,
+            order: link.order,
+            is_active: link.is_active,
+          })),
+        )
+
+        if (insertLinksError) throw insertLinksError
+      }
+
+      return newPage
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pages'] })
