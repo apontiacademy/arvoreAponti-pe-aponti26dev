@@ -13,7 +13,10 @@ const navItems = [
 export function Sidebar() {
   return (
     <nav aria-label="Navegação principal" className="flex w-60 shrink-0 flex-col gap-1 border-r p-4">
-      <span className="mb-4 px-2.5 font-heading font-semibold">ApontiLinkCenter</span>
+      <span className="mb-4 flex items-center gap-2 px-2.5 font-heading font-semibold">
+        <img src="/APONTI_SIMBOLO_RGB-01.svg" alt="" className="size-6" />
+        ApontiLinkCenter
+      </span>
       {navItems.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
