@@ -51,4 +51,12 @@ describe('AuthGuard', () => {
 
     expect(await screen.findByText('tela protegida')).toBeInTheDocument()
   })
+
+  it('redireciona para /login quando getSession rejeita, sem travar em loading', async () => {
+    vi.mocked(supabase.auth.getSession).mockRejectedValue(new Error('network error'))
+
+    renderWithRouter(['/dashboard'])
+
+    expect(await screen.findByText('tela de login')).toBeInTheDocument()
+  })
 })
