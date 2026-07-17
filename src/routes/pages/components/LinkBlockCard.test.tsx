@@ -78,6 +78,28 @@ describe('LinkBlockCard', () => {
     expect(updateMutate).toHaveBeenCalledWith({ id: 'link-1', values: { is_active: false } })
   })
 
+  it('nao autosalva e exibe erro quando a URL e invalida apos o campo perder o foco', async () => {
+    const user = userEvent.setup()
+    renderCard({ ...baseLink, type: 'link' })
+
+    const urlInput = screen.getByLabelText('URL')
+    await user.type(urlInput, 'nao-e-uma-url')
+    await user.tab()
+
+    await screen.findByText('Informe uma URL válida (ex: https://...).')
+    await new Promise((resolve) => setTimeout(resolve, 900))
+    expect(updateMutate).not.toHaveBeenCalled()
+  })
+
+  it('nao exibe erro de URL antes do campo perder o foco', async () => {
+    const user = userEvent.setup()
+    renderCard({ ...baseLink, type: 'email' })
+
+    await user.type(screen.getByLabelText('Email'), 'nao-e-email')
+
+    expect(screen.queryByText('Informe um email válido.')).not.toBeInTheDocument()
+  })
+
   it('exclui o bloco apos confirmar no dialogo', async () => {
     const user = userEvent.setup()
     renderCard({ ...baseLink, type: 'link' })
