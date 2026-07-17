@@ -18,13 +18,31 @@ function createWrapper() {
   }
 }
 
-function setupInsertSequence(results: Array<{ data?: unknown; error?: unknown }>) {
+function setupSupabase({
+  pageInsertResults,
+  existingLinks = [],
+}: {
+  pageInsertResults: Array<{ data?: unknown; error?: unknown }>
+  existingLinks?: unknown[]
+}) {
   let call = 0
-  const insert = vi.fn(() => ({
-    select: () => ({ single: () => Promise.resolve(results[call++]) }),
+  const pagesInsert = vi.fn(() => ({
+    select: () => ({ single: () => Promise.resolve(pageInsertResults[call++]) }),
   }))
-  vi.mocked(supabase.from).mockReturnValue({ insert } as never)
-  return { insert }
+  const linksInsert = vi.fn().mockResolvedValue({ error: null })
+  const linksSelect = vi.fn(() => ({
+    eq: () => ({
+      order: () => Promise.resolve({ data: existingLinks, error: null }),
+    }),
+  }))
+
+  vi.mocked(supabase.from).mockImplementation((table: string) => {
+    if (table === 'pages') return { insert: pagesInsert } as never
+    if (table === 'links') return { select: linksSelect, insert: linksInsert } as never
+    throw new Error(`unexpected table ${table}`)
+  })
+
+  return { pagesInsert, linksInsert, linksSelect }
 }
 
 const originalPage = {
@@ -40,33 +58,96 @@ const originalPage = {
 
 describe('useDuplicatePage', () => {
   it('duplica a pagina com sufixo -copia e is_published false', async () => {
-    const { insert } = setupInsertSequence([{ data: { id: 'page-2' }, error: null }])
+    const { pagesInsert, linksInsert } = setupSupabase({
+      pageInsertResults: [{ data: { id: 'page-2' }, error: null }],
+    })
 
     const { result } = renderHook(() => useDuplicatePage(), { wrapper: createWrapper() })
     result.current.mutate(originalPage)
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    expect(insert).toHaveBeenCalledWith(
+    expect(pagesInsert).toHaveBeenCalledWith(
       expect.objectContaining({ slug: 'original-copia', is_published: false }),
     )
+    expect(linksInsert).not.toHaveBeenCalled()
   })
 
   it('tenta um novo slug quando ha conflito de unicidade', async () => {
-    const { insert } = setupInsertSequence([
-      { data: null, error: { code: '23505' } },
-      { data: { id: 'page-3' }, error: null },
-    ])
+    const { pagesInsert } = setupSupabase({
+      pageInsertResults: [
+        { data: null, error: { code: '23505' } },
+        { data: { id: 'page-3' }, error: null },
+      ],
+    })
 
     const { result } = renderHook(() => useDuplicatePage(), { wrapper: createWrapper() })
     result.current.mutate(originalPage)
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-    expect(insert).toHaveBeenNthCalledWith(1, expect.objectContaining({ slug: 'original-copia' }))
-    expect(insert).toHaveBeenNthCalledWith(
+    expect(pagesInsert).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ slug: 'original-copia' }),
+    )
+    expect(pagesInsert).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ slug: 'original-copia-1' }),
     )
+  })
+
+  it('duplica os links da pagina original para a nova pagina', async () => {
+    const { linksInsert, linksSelect } = setupSupabase({
+      pageInsertResults: [{ data: { id: 'page-2' }, error: null }],
+      existingLinks: [
+        {
+          id: 'link-1',
+          page_id: 'page-1',
+          type: 'link',
+          label: 'Meu site',
+          url: 'https://exemplo.com',
+          payload: {},
+          order: 0,
+          is_active: true,
+        },
+        {
+          id: 'link-2',
+          page_id: 'page-1',
+          type: 'title',
+          label: 'Bem-vindo',
+          url: null,
+          payload: {},
+          order: 1,
+          is_active: false,
+        },
+      ],
+    })
+
+    const { result } = renderHook(() => useDuplicatePage(), { wrapper: createWrapper() })
+    result.current.mutate(originalPage)
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    expect(linksSelect).toHaveBeenCalled()
+    expect(linksInsert).toHaveBeenCalledWith([
+      {
+        page_id: 'page-2',
+        type: 'link',
+        label: 'Meu site',
+        url: 'https://exemplo.com',
+        payload: {},
+        order: 0,
+        is_active: true,
+      },
+      {
+        page_id: 'page-2',
+        type: 'title',
+        label: 'Bem-vindo',
+        url: null,
+        payload: {},
+        order: 1,
+        is_active: false,
+      },
+    ])
   })
 })
