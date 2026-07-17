@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
-import { ArrowLeft, ExternalLink, Trash2 } from 'lucide-react'
+import { Reorder } from 'framer-motion'
+import { ArrowLeft, ExternalLink, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,10 +29,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { usePage } from '@/features/pages/usePage'
 import { useUpdatePage } from '@/features/pages/useUpdatePage'
 import { useDeletePage } from '@/features/pages/useDeletePage'
 import { pageFormSchema, type PageFormValues } from '@/features/pages/pageSchema'
+import { useLinks } from '@/features/links/useLinks'
+import { useCreateLink } from '@/features/links/useCreateLink'
+import { useReorderLinks } from '@/features/links/useReorderLinks'
+import { LINK_TYPES } from '@/features/links/linkTypes'
+import { LinkBlockCard } from './components/LinkBlockCard'
 
 const AUTOSAVE_DELAY_MS = 800
 
@@ -45,6 +57,17 @@ export default function PageEditPage() {
   const deletePage = useDeletePage()
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const savedSnapshotRef = useRef<string | null>(null)
+
+  const { data: links, isLoading: isLoadingLinks } = useLinks(page?.id)
+  const createLink = useCreateLink()
+  const reorderLinks = useReorderLinks()
+  const [orderedIds, setOrderedIds] = useState<string[]>([])
+
+  useEffect(() => {
+    if (links) {
+      setOrderedIds(links.map((link) => link.id))
+    }
+  }, [links])
 
   const {
     register,
@@ -130,6 +153,22 @@ export default function PageEditPage() {
       },
       onError: () => toast.error('Não foi possível excluir a árvore.'),
     })
+  }
+
+  function handleAddLink(type: (typeof LINK_TYPES)[number]['type']) {
+    if (!page) return
+    createLink.mutate(
+      { pageId: page.id, type, order: orderedIds.length },
+      { onError: () => toast.error('Não foi possível adicionar o bloco.') },
+    )
+  }
+
+  function handlePersistOrder(newOrder: string[]) {
+    if (!page) return
+    reorderLinks.mutate(
+      { pageId: page.id, items: newOrder.map((linkId, index) => ({ id: linkId, order: index })) },
+      { onError: () => toast.error('Não foi possível salvar a nova ordem dos blocos.') },
+    )
   }
 
   if (isLoading) {
@@ -220,6 +259,62 @@ export default function PageEditPage() {
               />
             </div>
           </form>
+        </CardContent>
+      </Card>
+
+      <Card className="max-w-lg">
+        <CardHeader>
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <CardTitle>Blocos</CardTitle>
+              <CardDescription>Links, redes sociais e outros conteúdos da árvore.</CardDescription>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button size="sm" />}>
+                <Plus className="size-4" />
+                Adicionar
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {LINK_TYPES.map(({ type, label, icon: TypeIcon }) => (
+                  <DropdownMenuItem key={type} onClick={() => handleAddLink(type)}>
+                    <TypeIcon className="size-4" />
+                    {label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoadingLinks ? (
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ) : orderedIds.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              Nenhum bloco ainda. Adicione links, redes sociais ou outros conteúdos.
+            </p>
+          ) : (
+            <Reorder.Group
+              axis="y"
+              values={orderedIds}
+              onReorder={setOrderedIds}
+              className="flex flex-col gap-2"
+            >
+              {orderedIds.map((linkId) => {
+                const link = links?.find((item) => item.id === linkId)
+                if (!link) return null
+                return (
+                  <LinkBlockCard
+                    key={link.id}
+                    link={link}
+                    onDragEnd={() => handlePersistOrder(orderedIds)}
+                  />
+                )
+              })}
+            </Reorder.Group>
+          )}
         </CardContent>
       </Card>
 
