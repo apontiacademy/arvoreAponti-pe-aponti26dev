@@ -20,7 +20,7 @@ function withSuspense(element: React.ReactNode) {
 
 export const router = createBrowserRouter([
   { path: '/login', element: withSuspense(<LoginPage />) },
-  { path: '/:username', element: withSuspense(<PublicPagePage />) },
+  { path: '/:slug', element: withSuspense(<PublicPagePage />) },
   {
     element: <AuthGuard />,
     children: [
