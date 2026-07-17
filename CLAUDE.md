@@ -20,6 +20,8 @@ Phase 2 — Analytics dashboard (2026-07-17): done — `AnalyticsPage` reads `an
 
 Phase 2 refinement — `useDuplicatePage` copies links (2026-07-17): done — duplicating a page now also copies its `links` rows (not just the `pages` row), closing a gap that had been open since the drag-and-drop editor phase. `social_links` remains unduplicated since that table is still entirely unused — see "Known gaps".
 
+Vercel deployment is now live (2026-07-17), connected by the user outside this repo's tracked work (Vercel setup had been explicitly deferred as "depends on manual user connection" back in Phase 1 — see `docs/superpowers/plans/2026-07-15-fase-1-fundacao.md`). First deploy hit a 404 on direct navigation to a public page URL (e.g. `/algum-slug`): this is a single-page app using `createBrowserRouter` client-side routing, and Vercel has no route/file at `/algum-slug` to serve unless told to fall back to `index.html`. Fixed by adding `vercel.json` with a catch-all rewrite to `/index.html` — see "Architecture".
+
 ## What is being built
 
 An internal tool for the company to manage "link tree" pages (Linktree/Bento.me/Beacons.ai style) — create, edit, and publish pages made of link/social/media blocks, with drag-and-drop reordering, per-page theming, and analytics. Access is restricted to authenticated employees only.
@@ -60,6 +62,7 @@ React Hook Form + Zod (+ `@hookform/resolvers`) are installed and wired (Login, 
 - `src/lib/supabase.ts` — Supabase client, typed with `Database` from `src/lib/database.types.ts` (generated via the Supabase MCP `generate_typescript_types` tool — re-run and regenerate by hand after schema changes, there's no CI step for this yet), reads `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` from env and throws if missing. `src/lib/utils.ts` — shadcn's `cn()` helper.
 - Base UI's `Button` uses a `render` prop (not shadcn's usual `asChild`) for polymorphic rendering, e.g. `<Button render={<Link to="/pages/new" />} nativeButton={false}>`. Always pass `nativeButton={false}` when rendering as a non-`<button>` element (an anchor/Link) — otherwise Base UI logs a dev warning about losing native button semantics. Note the rendered element still gets `role="button"` regardless, which is what tests must query by (`getByRole('button', ...)`, not `'link'`).
 - Tests live next to the code they cover (`*.test.tsx`/`*.test.ts`), plus `src/test/setup.ts` (jest-dom matchers) and a `src/test/smoke.test.ts` runner sanity check.
+- `vercel.json` (repo root) — a single catch-all rewrite (`"/(.*)"` → `/index.html`), required because this is a client-side-routed SPA (`createBrowserRouter`): without it, Vercel 404s on direct navigation/refresh of any non-root path (`/dashboard`, `/:slug`, etc.) since there's no real file or function at those paths server-side. Vercel checks the static build output for a matching file before applying rewrites, so this doesn't shadow real assets in `dist/` (JS bundles, `APONTI_SIMBOLO_RGB-01.svg`, etc.).
 
 ## Domain model (Supabase schema)
 
