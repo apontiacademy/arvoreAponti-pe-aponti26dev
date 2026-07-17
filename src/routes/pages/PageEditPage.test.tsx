@@ -28,8 +28,29 @@ vi.mock('@/features/pages/useDeletePage', () => ({
   useDeletePage: () => ({ mutate: deleteMutate }),
 }))
 
+const useLinksMock = vi.fn()
+vi.mock('@/features/links/useLinks', () => ({
+  useLinks: (pageId: string | undefined) => useLinksMock(pageId),
+}))
+
+const createLinkMutate = vi.fn()
+vi.mock('@/features/links/useCreateLink', () => ({
+  useCreateLink: () => ({ mutate: createLinkMutate }),
+}))
+
+const reorderLinksMutate = vi.fn()
+vi.mock('@/features/links/useReorderLinks', () => ({
+  useReorderLinks: () => ({ mutate: reorderLinksMutate }),
+}))
+
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
+}))
+
+vi.mock('./components/LinkBlockCard', () => ({
+  LinkBlockCard: ({ link }: { link: { id: string; label: string | null } }) => (
+    <div>{link.label || link.id}</div>
+  ),
 }))
 
 import PageEditPage from './PageEditPage'
@@ -61,6 +82,10 @@ describe('PageEditPage', () => {
     updateMutate.mockReset()
     updateMutate.mockImplementation((_args, callbacks) => callbacks?.onSuccess?.())
     deleteMutate.mockReset()
+    useLinksMock.mockReset()
+    useLinksMock.mockReturnValue({ data: [], isLoading: false, isError: false })
+    createLinkMutate.mockReset()
+    reorderLinksMutate.mockReset()
   })
 
   it('exibe skeleton enquanto carrega', () => {
@@ -126,5 +151,44 @@ describe('PageEditPage', () => {
 
     expect(deleteMutate).toHaveBeenCalledWith('page-1', expect.anything())
     expect(navigateMock).toHaveBeenCalledWith('/pages', { replace: true })
+  })
+
+  it('exibe mensagem quando a arvore nao tem blocos', () => {
+    usePageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    renderEdit()
+
+    expect(
+      screen.getByText('Nenhum bloco ainda. Adicione links, redes sociais ou outros conteúdos.'),
+    ).toBeInTheDocument()
+  })
+
+  it('lista os blocos existentes da arvore', () => {
+    usePageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    useLinksMock.mockReturnValue({
+      data: [
+        { id: 'link-1', label: 'Meu link', type: 'link' },
+        { id: 'link-2', label: null, type: 'title' },
+      ],
+      isLoading: false,
+      isError: false,
+    })
+    renderEdit()
+
+    expect(screen.getByText('Meu link')).toBeInTheDocument()
+    expect(screen.getByText('link-2')).toBeInTheDocument()
+  })
+
+  it('adiciona um bloco pelo menu de adicionar', async () => {
+    usePageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    const user = userEvent.setup()
+    renderEdit()
+
+    await user.click(screen.getByRole('button', { name: /adicionar/i }))
+    await user.click(await screen.findByRole('menuitem', { name: /^link$/i }))
+
+    expect(createLinkMutate).toHaveBeenCalledWith(
+      { pageId: 'page-1', type: 'link', order: 0 },
+      expect.anything(),
+    )
   })
 })
