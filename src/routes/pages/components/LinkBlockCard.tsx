@@ -19,6 +19,7 @@ import {
 import { useUpdateLink } from '@/features/links/useUpdateLink'
 import { useDeleteLink } from '@/features/links/useDeleteLink'
 import { LINK_TYPE_MAP, type LinkType } from '@/features/links/linkTypes'
+import { validateLabelField, validateUrlField } from '@/features/links/linkValidation'
 import type { Link } from '@/features/links/useLinks'
 
 const AUTOSAVE_DELAY_MS = 800
@@ -38,13 +39,23 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
 
   const [label, setLabel] = useState(link.label ?? '')
   const [url, setUrl] = useState(link.url ?? '')
+  const [labelTouched, setLabelTouched] = useState(false)
+  const [urlTouched, setUrlTouched] = useState(false)
   const snapshotRef = useRef(JSON.stringify({ label: link.label ?? '', url: link.url ?? '' }))
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+
+  const labelError = validateLabelField(link.type as LinkType, label)
+  const urlError = config.hasUrl ? validateUrlField(link.type as LinkType, url) : null
 
   useEffect(() => {
     const current = { label, url }
     const serialized = JSON.stringify(current)
     if (serialized === snapshotRef.current) return
+
+    if (labelError || urlError) {
+      setSaveStatus('idle')
+      return
+    }
 
     setSaveStatus('saving')
     const timeout = setTimeout(() => {
@@ -62,7 +73,7 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
 
     return () => clearTimeout(timeout)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [label, url])
+  }, [label, url, labelError, urlError])
 
   function handleToggleActive(checked: boolean) {
     updateLink.mutate({ id: link.id, values: { is_active: checked } })
@@ -107,6 +118,7 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
             placeholder="Escreva um texto..."
             value={label}
             onChange={(event) => setLabel(event.target.value)}
+            onBlur={() => setLabelTouched(true)}
           />
         ) : (
           <Input
@@ -114,16 +126,22 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
             placeholder={link.type === 'title' ? 'Título' : 'Texto do botão (opcional)'}
             value={label}
             onChange={(event) => setLabel(event.target.value)}
+            onBlur={() => setLabelTouched(true)}
           />
         )}
+        {labelTouched && labelError && <p className="text-xs text-destructive">{labelError}</p>}
 
         {config.hasUrl && (
-          <Input
-            aria-label={config.valueLabel}
-            placeholder={config.valuePlaceholder}
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-          />
+          <>
+            <Input
+              aria-label={config.valueLabel}
+              placeholder={config.valuePlaceholder}
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              onBlur={() => setUrlTouched(true)}
+            />
+            {urlTouched && urlError && <p className="text-xs text-destructive">{urlError}</p>}
+          </>
         )}
       </div>
 
