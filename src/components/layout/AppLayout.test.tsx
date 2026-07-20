@@ -14,6 +14,10 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
+vi.mock('@/features/pages/usePage', () => ({
+  usePage: () => ({ data: undefined }),
+}))
+
 import { AppLayout } from './AppLayout'
 
 describe('AppLayout', () => {

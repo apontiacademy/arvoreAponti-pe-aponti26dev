@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { SidebarProvider } from '@/components/ui/sidebar'
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
@@ -23,7 +24,11 @@ import { Topbar } from './Topbar'
 describe('Topbar', () => {
   it('exibe o email do usuario autenticado e permite sair', async () => {
     const user = userEvent.setup()
-    render(<Topbar />)
+    render(
+      <SidebarProvider>
+        <Topbar />
+      </SidebarProvider>,
+    )
 
     expect(await screen.findByText('user@aponti.com')).toBeInTheDocument()
 
