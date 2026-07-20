@@ -1,5 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
+
+export type Role = 'user' | 'admin'
 
 export function useSetUserRole() {
   const queryClient = useQueryClient()
@@ -10,7 +13,7 @@ export function useSetUserRole() {
       newRole,
     }: {
       targetUserId: string
-      newRole: 'user' | 'admin'
+      newRole: Role
     }) => {
       const { error } = await supabase.rpc('set_user_role', {
         target_user_id: targetUserId,
@@ -21,6 +24,9 @@ export function useSetUserRole() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
       queryClient.invalidateQueries({ queryKey: ['profile'] })
+    },
+    onError: () => {
+      toast.error('Não foi possível atualizar o papel do usuário.')
     },
   })
 }
