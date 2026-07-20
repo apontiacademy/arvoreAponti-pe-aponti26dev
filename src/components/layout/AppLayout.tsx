@@ -1,19 +1,20 @@
 import { Outlet } from 'react-router-dom'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { Breadcrumb } from './Breadcrumb'
 
 export function AppLayout() {
   return (
-    <div className="flex min-h-screen">
+    <SidebarProvider>
       <Sidebar />
-      <div className="flex flex-1 flex-col">
+      <SidebarInset>
         <Topbar />
         <Breadcrumb />
         <main className="flex-1 p-6">
           <Outlet />
         </main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
