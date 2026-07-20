@@ -28,15 +28,41 @@ vi.mock('@/features/profiles/useSetUserRole', () => ({
   useSetUserRole: () => ({ mutate: setRoleMutate }),
 }))
 
+const setThemeMock = vi.fn()
+const useThemeMock = vi.fn(() => ({ theme: 'system', setTheme: setThemeMock }))
+vi.mock('next-themes', () => ({
+  useTheme: () => useThemeMock(),
+}))
+
 import SettingsPage from './SettingsPage'
 
 beforeEach(() => {
   useProfileMock.mockReturnValue({ data: { role: 'user' }, isLoading: false })
   useUsersMock.mockReturnValue({ data: [], isLoading: false, isError: false })
   setRoleMutate.mockClear()
+  setThemeMock.mockClear()
+  useThemeMock.mockReturnValue({ theme: 'system', setTheme: setThemeMock })
 })
 
 describe('SettingsPage', () => {
+  it('mostra a secao de aparencia para qualquer usuario, mesmo sem ser admin', async () => {
+    const user = userEvent.setup()
+    render(<SettingsPage />)
+
+    expect(screen.getByText('Aparência')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /escuro/i }))
+    expect(setThemeMock).toHaveBeenCalledWith('dark')
+  })
+
+  it('marca o tema atual como selecionado na secao de aparencia', () => {
+    useThemeMock.mockReturnValue({ theme: 'dark', setTheme: setThemeMock })
+    render(<SettingsPage />)
+
+    expect(screen.getByRole('button', { name: /escuro/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /claro/i })).toHaveAttribute('aria-pressed', 'false')
+  })
+
   it('nao mostra a secao de usuarios para quem nao e admin', () => {
     render(<SettingsPage />)
     expect(screen.queryByText('Usuários')).not.toBeInTheDocument()
