@@ -39,6 +39,10 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
+    --color-brand-purple-dark: var(--brand-purple-dark);
+    --color-brand-purple-light: var(--brand-purple-light);
+    --color-brand-amber-dark: var(--brand-amber-dark);
+    --color-brand-amber-light: var(--brand-amber-light);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
     --radius-lg: var(--radius);
@@ -49,7 +53,13 @@
 }
 
 :root {
-    /* Aponti palette — primary: #6518EA, accent: #FBC100 (mesma paleta do penteFinoWeb) */
+    /* Aponti palette — primary: #6518EA (roxo, cor mais forte/usada da marca), accent: #FBC100.
+       Paleta completa da marca: #6518EA (roxo), #420F99 (roxo escuro), #AD7DFF (roxo claro),
+       #FBC100 (amarelo), #DB9200 (amarelo escuro), #FFE796 (amarelo claro). */
+    --brand-purple-dark: #420F99;
+    --brand-purple-light: #AD7DFF;
+    --brand-amber-dark: #DB9200;
+    --brand-amber-light: #FFE796;
     --background: oklch(0.963 0.008 294);          /* cinza-lavanda suave: cards brancos se destacam */
     --foreground: oklch(0.16 0.06 292);
     --card: oklch(1 0 0);
@@ -68,11 +78,11 @@
     --border: oklch(0.895 0.022 294);
     --input: oklch(0.895 0.022 294);
     --ring: oklch(0.452 0.286 294);                /* #6518EA */
-    --chart-1: oklch(0.452 0.286 294);
-    --chart-2: oklch(0.827 0.181 87);
-    --chart-3: oklch(0.710 0.191 294);
-    --chart-4: oklch(0.301 0.215 292);
-    --chart-5: oklch(0.713 0.167 69);
+    --chart-1: oklch(0.452 0.286 294);             /* #6518EA */
+    --chart-2: oklch(0.827 0.181 87);               /* #FBC100 */
+    --chart-3: var(--brand-purple-light);           /* #AD7DFF */
+    --chart-4: var(--brand-purple-dark);            /* #420F99 */
+    --chart-5: var(--brand-amber-dark);             /* #DB9200 */
     --radius: 0.65rem;
     --sidebar: oklch(1 0 0);                       /* branco puro — limpo */
     --sidebar-foreground: oklch(0.16 0.06 292);
@@ -93,21 +103,21 @@
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.452 0.286 294);        /* #6518EA */
     --primary-foreground: oklch(1 0 0);
-    --secondary: oklch(0.301 0.215 292);      /* #420F99 */
-    --secondary-foreground: oklch(0.710 0.191 294);
+    --secondary: var(--brand-purple-dark);    /* #420F99 */
+    --secondary-foreground: var(--brand-purple-light);
     --muted: oklch(0.26 0.05 292);
-    --muted-foreground: oklch(0.710 0.191 294);
+    --muted-foreground: var(--brand-purple-light);
     --accent: oklch(0.827 0.181 87);          /* #FBC100 */
     --accent-foreground: oklch(0.14 0.04 292);
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.452 0.286 294);
-    --chart-1: oklch(0.452 0.286 294);
-    --chart-2: oklch(0.827 0.181 87);
-    --chart-3: oklch(0.710 0.191 294);
-    --chart-4: oklch(0.301 0.215 292);
-    --chart-5: oklch(0.713 0.167 69);
+    --chart-1: oklch(0.452 0.286 294);        /* #6518EA */
+    --chart-2: oklch(0.827 0.181 87);         /* #FBC100 */
+    --chart-3: var(--brand-purple-light);     /* #AD7DFF */
+    --chart-4: var(--brand-purple-dark);      /* #420F99 */
+    --chart-5: var(--brand-amber-dark);       /* #DB9200 */
     --sidebar: oklch(0.19 0.05 292);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.452 0.286 294);
