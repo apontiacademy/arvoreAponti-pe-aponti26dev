@@ -29,6 +29,8 @@ import { usePages, type Page } from '@/features/pages/usePages'
 import { useDuplicatePage } from '@/features/pages/useDuplicatePage'
 import { useDeletePage } from '@/features/pages/useDeletePage'
 import { useUpdatePage } from '@/features/pages/useUpdatePage'
+import { useProfile } from '@/features/profiles/useProfile'
+import { useUsers } from '@/features/profiles/useUsers'
 
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
   day: '2-digit',
@@ -39,7 +41,11 @@ const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
 export default function PagesListPage() {
   const navigate = useNavigate()
   const { session } = useSession()
-  const { data: pages, isLoading, isError } = usePages(session?.user.id)
+  const { data: profile } = useProfile(session?.user.id)
+  const isAdmin = profile?.role === 'admin'
+  const { data: pages, isLoading, isError } = usePages(session?.user.id, { allPages: isAdmin })
+  const { data: users } = useUsers(isAdmin)
+  const usernameByOwnerId = new Map((users ?? []).map((user) => [user.id, user.username]))
   const duplicatePage = useDuplicatePage()
   const updatePage = useUpdatePage()
   const deletePage = useDeletePage()
@@ -90,7 +96,11 @@ export default function PagesListPage() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold">Árvores</h1>
-          <p className="text-sm text-muted-foreground">Gerencie todas as suas árvores de links.</p>
+          <p className="text-sm text-muted-foreground">
+            {isAdmin
+              ? 'Gerencie as árvores de todos os usuários.'
+              : 'Gerencie todas as suas árvores de links.'}
+          </p>
         </div>
         <Button render={<Link to="/pages/new" />} nativeButton={false}>
           <Plus className="size-4" />
@@ -138,6 +148,12 @@ export default function PagesListPage() {
                     </Link>
                     <span className="truncate text-xs text-muted-foreground">
                       /{page.slug} · Atualizado em {dateFormatter.format(new Date(page.updated_at))}
+                      {isAdmin && users && (
+                        <>
+                          {' · '}
+                          <span>{`por ${usernameByOwnerId.get(page.owner_id) ?? 'desconhecido'}`}</span>
+                        </>
+                      )}
                     </span>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
