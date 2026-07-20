@@ -1,0 +1,12 @@
+-- The previous migration (20260720000000_user_roles.sql) revoked EXECUTE on
+-- set_user_role() from `public` and granted it to `authenticated`, mirroring the intent of
+-- the handle_new_user() lockdown (20260717000001_revoke_handle_new_user_execute.sql) — but
+-- that earlier migration revoked from `public, anon, authenticated` explicitly, while this
+-- one only revoked from `public`. On this Supabase project, `anon`/`authenticated` hold
+-- default EXECUTE privileges on newly created public-schema functions independent of the
+-- `public` pseudo-role grant, so revoking only from `public` left `anon` with EXECUTE on
+-- set_user_role() (confirmed via information_schema.routine_privileges). Calling it as
+-- anon currently raises "not authorized" (is_admin() is false when auth.uid() is null), so
+-- this was not exploitable in practice — but an admin-mutation RPC has no business being
+-- reachable over the anon API at all, and it breaks from the established lockdown pattern.
+revoke execute on function public.set_user_role(uuid, text) from anon;
