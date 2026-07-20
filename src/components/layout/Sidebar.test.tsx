@@ -1,13 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { SidebarProvider } from '@/components/ui/sidebar'
 import { Sidebar } from './Sidebar'
 
 describe('Sidebar', () => {
   it('marca o link da rota atual como ativo', () => {
     render(
       <MemoryRouter initialEntries={['/pages']}>
-        <Sidebar />
+        <SidebarProvider>
+          <Sidebar />
+        </SidebarProvider>
       </MemoryRouter>,
     )
 
@@ -18,7 +21,9 @@ describe('Sidebar', () => {
   it('lista todos os itens de navegacao', () => {
     render(
       <MemoryRouter>
-        <Sidebar />
+        <SidebarProvider>
+          <Sidebar />
+        </SidebarProvider>
       </MemoryRouter>,
     )
 

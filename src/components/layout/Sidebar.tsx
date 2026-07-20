@@ -1,6 +1,15 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { LayoutDashboard, ListTree, BarChart3, User, Settings } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import {
+  Sidebar as SidebarPrimitive,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -11,27 +20,36 @@ const navItems = [
 ]
 
 export function Sidebar() {
+  const location = useLocation()
+
   return (
-    <nav aria-label="Navegação principal" className="flex w-60 shrink-0 flex-col gap-1 border-r p-4">
-      <span className="mb-4 flex items-center gap-2 px-2.5 font-heading font-semibold">
-        <img src="/APONTI_SIMBOLO_RGB-01.svg" alt="" className="size-6" />
-        ApontiLinkCenter
-      </span>
-      {navItems.map(({ to, label, icon: Icon }) => (
-        <NavLink
-          key={to}
-          to={to}
-          className={({ isActive }) =>
-            cn(
-              'flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground',
-              isActive && 'bg-muted text-foreground',
-            )
-          }
-        >
-          <Icon className="size-4" />
-          {label}
-        </NavLink>
-      ))}
-    </nav>
+    <SidebarPrimitive>
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-1.5 font-heading font-semibold">
+          <img src="/APONTI_SIMBOLO_RGB-01.svg" alt="" className="size-6" />
+          ApontiLinkCenter
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map(({ to, label, icon: Icon }) => {
+                const isActive =
+                  location.pathname === to || location.pathname.startsWith(`${to}/`)
+                return (
+                  <SidebarMenuItem key={to}>
+                    <SidebarMenuButton isActive={isActive} render={<NavLink to={to} />}>
+                      <Icon />
+                      <span>{label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </SidebarPrimitive>
   )
 }
