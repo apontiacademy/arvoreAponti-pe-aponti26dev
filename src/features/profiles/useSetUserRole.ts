@@ -24,6 +24,7 @@ export function useSetUserRole() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
       queryClient.invalidateQueries({ queryKey: ['profile'] })
+      toast.success('Papel do usuário atualizado.')
     },
     onError: () => {
       toast.error('Não foi possível atualizar o papel do usuário.')

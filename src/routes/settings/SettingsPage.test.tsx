@@ -16,6 +16,8 @@ vi.mock('@/features/profiles/useProfile', () => ({
 
 const useUsersMock = vi.fn(() => ({
   data: [] as Array<{ id: string; username: string; role: string }>,
+  isLoading: false,
+  isError: false,
 }))
 vi.mock('@/features/profiles/useUsers', () => ({
   useUsers: () => useUsersMock(),
@@ -30,7 +32,7 @@ import SettingsPage from './SettingsPage'
 
 beforeEach(() => {
   useProfileMock.mockReturnValue({ data: { role: 'user' }, isLoading: false })
-  useUsersMock.mockReturnValue({ data: [] })
+  useUsersMock.mockReturnValue({ data: [], isLoading: false, isError: false })
   setRoleMutate.mockClear()
 })
 
@@ -47,6 +49,8 @@ describe('SettingsPage', () => {
         { id: 'admin-1', username: 'leandrobfd', role: 'admin' },
         { id: 'user-1', username: 'ana', role: 'user' },
       ],
+      isLoading: false,
+      isError: false,
     })
 
     render(<SettingsPage />)
@@ -63,6 +67,8 @@ describe('SettingsPage', () => {
         { id: 'admin-1', username: 'leandrobfd', role: 'admin' },
         { id: 'user-1', username: 'ana', role: 'user' },
       ],
+      isLoading: false,
+      isError: false,
     })
 
     render(<SettingsPage />)
@@ -83,6 +89,8 @@ describe('SettingsPage', () => {
     useProfileMock.mockReturnValue({ data: { role: 'admin', id: 'admin-1' }, isLoading: false })
     useUsersMock.mockReturnValue({
       data: [{ id: 'user-1', username: 'ana', role: 'user' }],
+      isLoading: false,
+      isError: false,
     })
 
     render(<SettingsPage />)
@@ -99,6 +107,8 @@ describe('SettingsPage', () => {
         { id: 'admin-1', username: 'leandrobfd', role: 'admin' },
         { id: 'user-2', username: 'outro-admin', role: 'admin' },
       ],
+      isLoading: false,
+      isError: false,
     })
 
     render(<SettingsPage />)
@@ -110,6 +120,9 @@ describe('SettingsPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: /rebaixar/i }))
 
-    expect(setRoleMutate).toHaveBeenCalledWith({ targetUserId: 'user-2', newRole: 'user' })
+    expect(setRoleMutate).toHaveBeenCalledWith(
+      { targetUserId: 'user-2', newRole: 'user' },
+      expect.anything(),
+    )
   })
 })
