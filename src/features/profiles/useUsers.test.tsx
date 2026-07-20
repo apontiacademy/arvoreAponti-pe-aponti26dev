@@ -37,4 +37,9 @@ describe('useUsers', () => {
     expect(order).toHaveBeenCalledWith('username', { ascending: true })
     expect(result.current.data).toHaveLength(2)
   })
+
+  it('nao executa a query quando enabled e false', () => {
+    const { result } = renderHook(() => useUsers(false), { wrapper: createWrapper() })
+    expect(result.current.fetchStatus).toBe('idle')
+  })
 })

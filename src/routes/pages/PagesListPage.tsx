@@ -44,7 +44,7 @@ export default function PagesListPage() {
   const { data: profile } = useProfile(session?.user.id)
   const isAdmin = profile?.role === 'admin'
   const { data: pages, isLoading, isError } = usePages(session?.user.id, { allPages: isAdmin })
-  const { data: users } = useUsers()
+  const { data: users } = useUsers(isAdmin)
   const usernameByOwnerId = new Map((users ?? []).map((user) => [user.id, user.username]))
   const duplicatePage = useDuplicatePage()
   const updatePage = useUpdatePage()
@@ -148,7 +148,7 @@ export default function PagesListPage() {
                     </Link>
                     <span className="truncate text-xs text-muted-foreground">
                       /{page.slug} · Atualizado em {dateFormatter.format(new Date(page.updated_at))}
-                      {isAdmin && (
+                      {isAdmin && users && (
                         <>
                           {' · '}
                           <span>{`por ${usernameByOwnerId.get(page.owner_id) ?? 'desconhecido'}`}</span>
