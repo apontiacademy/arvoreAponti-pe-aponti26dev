@@ -9,7 +9,18 @@ vi.mock('@/features/auth/useSession', () => ({
 
 const usePagesMock = vi.fn()
 vi.mock('@/features/pages/usePages', () => ({
-  usePages: (ownerId: string | undefined) => usePagesMock(ownerId),
+  usePages: (ownerId: string | undefined, options?: { allPages?: boolean }) =>
+    usePagesMock(ownerId, options),
+}))
+
+const useProfileMock = vi.fn(() => ({ data: { role: 'user' }, isLoading: false }))
+vi.mock('@/features/profiles/useProfile', () => ({
+  useProfile: () => useProfileMock(),
+}))
+
+const useUsersMock = vi.fn(() => ({ data: [] as Array<{ id: string; username: string }> }))
+vi.mock('@/features/profiles/useUsers', () => ({
+  useUsers: () => useUsersMock(),
 }))
 
 const duplicateMutate = vi.fn()
@@ -63,6 +74,8 @@ describe('PagesListPage', () => {
     duplicateMutate.mockReset()
     updateMutate.mockReset()
     deleteMutate.mockReset()
+    useProfileMock.mockReturnValue({ data: { role: 'user' }, isLoading: false })
+    useUsersMock.mockReturnValue({ data: [] })
   })
 
   it('exibe skeletons enquanto carrega', () => {
@@ -131,5 +144,33 @@ describe('PagesListPage', () => {
     await user.click(within(dialog).getByRole('button', { name: /^excluir$/i }))
 
     expect(deleteMutate).toHaveBeenCalledWith('page-1', expect.anything())
+  })
+
+  it('mostra o dono de cada arvore quando o usuario logado e admin', async () => {
+    useProfileMock.mockReturnValue({ data: { role: 'admin' }, isLoading: false })
+    useUsersMock.mockReturnValue({
+      data: [
+        { id: 'owner-1', username: 'leandrobfd' },
+        { id: 'owner-2', username: 'ana' },
+      ],
+    })
+    usePagesMock.mockReturnValue({
+      data: [
+        {
+          id: 'page-1',
+          title: 'Minha Loja',
+          slug: 'minha-loja',
+          is_published: true,
+          updated_at: '2026-07-10T00:00:00Z',
+          owner_id: 'owner-2',
+        },
+      ],
+      isLoading: false,
+      isError: false,
+    })
+
+    renderList()
+
+    expect(await screen.findByText('por ana')).toBeInTheDocument()
   })
 })

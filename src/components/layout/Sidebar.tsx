@@ -27,7 +27,7 @@ export function Sidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1.5 font-heading font-semibold">
           <img src="/APONTI_SIMBOLO_RGB-01.svg" alt="" className="size-6" />
-          ApontiLinkCenter
+          Aponti Link Center
         </div>
       </SidebarHeader>
       <SidebarContent>

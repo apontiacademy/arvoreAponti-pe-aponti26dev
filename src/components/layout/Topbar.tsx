@@ -12,7 +12,7 @@ export function Topbar() {
       <SidebarTrigger />
       <div className="flex flex-1 items-center justify-end gap-4">
         <span className="text-sm text-muted-foreground">{session?.user.email}</span>
-        <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>
+        <Button variant="ghost" size="sm" className="hover:bg-destructive/10 hover:text-destructive" onClick={() => supabase.auth.signOut()}>
           <LogOut />
           Sair
         </Button>

@@ -21,12 +21,17 @@ function createWrapper() {
   }
 }
 
+function setupSupabaseMock(result: { data?: unknown; error?: unknown }) {
+  const order = vi.fn().mockResolvedValue(result)
+  const eq = vi.fn(() => ({ order }))
+  const select = vi.fn(() => ({ eq, order }))
+  vi.mocked(supabase.from).mockReturnValue({ select } as never)
+  return { select, eq, order }
+}
+
 describe('usePages', () => {
   it('busca as paginas do dono ordenadas por atualizacao', async () => {
-    const order = vi.fn().mockResolvedValue({ data: [{ id: '1' }], error: null })
-    const eq = vi.fn(() => ({ order }))
-    const select = vi.fn(() => ({ eq }))
-    vi.mocked(supabase.from).mockReturnValue({ select } as never)
+    const { eq, order } = setupSupabaseMock({ data: [{ id: '1' }], error: null })
 
     const { result } = renderHook(() => usePages('owner-1'), { wrapper: createWrapper() })
 
@@ -41,5 +46,19 @@ describe('usePages', () => {
   it('nao executa a query quando nao ha ownerId', () => {
     const { result } = renderHook(() => usePages(undefined), { wrapper: createWrapper() })
     expect(result.current.fetchStatus).toBe('idle')
+  })
+
+  it('busca todas as paginas sem filtrar por dono quando allPages e true', async () => {
+    const { eq, order } = setupSupabaseMock({ data: [{ id: '1' }, { id: '2' }], error: null })
+
+    const { result } = renderHook(() => usePages(undefined, { allPages: true }), {
+      wrapper: createWrapper(),
+    })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    expect(eq).not.toHaveBeenCalled()
+    expect(order).toHaveBeenCalledWith('updated_at', { ascending: false })
+    expect(result.current.data).toEqual([{ id: '1' }, { id: '2' }])
   })
 })
