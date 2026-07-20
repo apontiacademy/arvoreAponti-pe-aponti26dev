@@ -9,7 +9,20 @@ vi.mock('@/features/auth/useSession', () => ({
 
 const useAnalyticsSummaryMock = vi.fn()
 vi.mock('@/features/analytics/useAnalyticsSummary', () => ({
-  useAnalyticsSummary: (ownerId: string | undefined) => useAnalyticsSummaryMock(ownerId),
+  useAnalyticsSummary: (ownerId: string | undefined, options?: { allPages?: boolean }) =>
+    useAnalyticsSummaryMock(ownerId, options),
+}))
+
+const useProfileMock = vi.fn(() => ({ data: { role: 'user' }, isLoading: false }))
+vi.mock('@/features/profiles/useProfile', () => ({
+  useProfile: () => useProfileMock(),
+}))
+
+const useUsersMock = vi.fn((_enabled?: boolean) => ({
+  data: [] as Array<{ id: string; username: string }>,
+}))
+vi.mock('@/features/profiles/useUsers', () => ({
+  useUsers: (enabled?: boolean) => useUsersMock(enabled),
 }))
 
 import AnalyticsPage from './AnalyticsPage'
@@ -25,6 +38,8 @@ function renderPage() {
 describe('AnalyticsPage', () => {
   beforeEach(() => {
     useSessionMock.mockReturnValue({ session: { user: { id: 'owner-1' } } })
+    useProfileMock.mockReturnValue({ data: { role: 'user' }, isLoading: false })
+    useUsersMock.mockReturnValue({ data: [] })
   })
 
   it('exibe skeleton enquanto carrega', () => {
@@ -83,5 +98,34 @@ describe('AnalyticsPage', () => {
     expect(
       screen.queryByRole('link', { name: 'Ver página pública de Loja B' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('mostra o dono de cada arvore no ranking quando o usuario logado e admin', async () => {
+    useProfileMock.mockReturnValue({ data: { role: 'admin' }, isLoading: false })
+    useUsersMock.mockReturnValue({
+      data: [
+        { id: 'owner-1', username: 'leandrobfd' },
+        { id: 'owner-2', username: 'ana' },
+      ],
+    })
+    useAnalyticsSummaryMock.mockReturnValue({
+      data: [
+        {
+          pageId: 'page-1',
+          title: 'Loja',
+          slug: 'loja',
+          isPublished: true,
+          ownerId: 'owner-2',
+          totalViews: 10,
+          totalClicks: 4,
+        },
+      ],
+      isLoading: false,
+      isError: false,
+    })
+
+    renderPage()
+
+    expect(await screen.findByText('por ana')).toBeInTheDocument()
   })
 })

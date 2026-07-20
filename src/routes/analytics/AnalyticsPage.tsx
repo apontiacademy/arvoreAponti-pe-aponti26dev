@@ -5,10 +5,18 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useSession } from '@/features/auth/useSession'
 import { useAnalyticsSummary } from '@/features/analytics/useAnalyticsSummary'
+import { useProfile } from '@/features/profiles/useProfile'
+import { useUsers } from '@/features/profiles/useUsers'
 
 export default function AnalyticsPage() {
   const { session } = useSession()
-  const { data: pagesAnalytics, isLoading, isError } = useAnalyticsSummary(session?.user.id)
+  const { data: profile } = useProfile(session?.user.id)
+  const isAdmin = profile?.role === 'admin'
+  const { data: pagesAnalytics, isLoading, isError } = useAnalyticsSummary(session?.user.id, {
+    allPages: isAdmin,
+  })
+  const { data: users } = useUsers(isAdmin)
+  const usernameByOwnerId = new Map((users ?? []).map((user) => [user.id, user.username]))
 
   const totalViews = pagesAnalytics?.reduce((sum, page) => sum + page.totalViews, 0) ?? 0
   const totalClicks = pagesAnalytics?.reduce((sum, page) => sum + page.totalClicks, 0) ?? 0
@@ -19,7 +27,9 @@ export default function AnalyticsPage() {
       <div>
         <h1 className="text-xl font-semibold">Analytics</h1>
         <p className="text-sm text-muted-foreground">
-          Visualizações e cliques registrados em todas as suas árvores.
+          {isAdmin
+            ? 'Visualizações e cliques registrados em todas as árvores de todos os usuários.'
+            : 'Visualizações e cliques registrados em todas as suas árvores.'}
         </p>
       </div>
 
@@ -57,7 +67,15 @@ export default function AnalyticsPage() {
                     >
                       {page.title}
                     </Link>
-                    <span className="truncate text-xs text-muted-foreground">/{page.slug}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      /{page.slug}
+                      {isAdmin && users && (
+                        <>
+                          {' · '}
+                          <span>por {usernameByOwnerId.get(page.ownerId) ?? 'desconhecido'}</span>
+                        </>
+                      )}
+                    </span>
                   </div>
                   <div className="flex shrink-0 items-center gap-4">
                     <div className="text-right text-sm">
