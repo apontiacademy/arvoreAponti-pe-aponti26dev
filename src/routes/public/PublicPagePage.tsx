@@ -2,12 +2,14 @@ import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { usePublicPage } from '@/features/public/usePublicPage'
 import { useLinks, type Link } from '@/features/links/useLinks'
 import { recordAnalyticsEvent } from '@/features/public/analytics'
 import { isCopyOnlyLink } from '@/features/public/resolveLinkHref'
+import { groupPublicLinks } from '@/features/public/groupPublicLinks'
 import { PublicLinkBlock } from './components/PublicLinkBlock'
+import { PublicCollapsibleSection } from './components/PublicCollapsibleSection'
+import { PublicSocialIcons } from './components/PublicSocialIcons'
 
 export default function PublicPagePage() {
   const { slug } = useParams<{ slug: string }>()
@@ -54,22 +56,39 @@ export default function PublicPagePage() {
   }
 
   const activeLinks = (links ?? []).filter((link) => link.is_active)
+  const { icons, sections } = groupPublicLinks(activeLinks)
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-sm flex-col items-center gap-6 p-6 pt-16">
-      <div className="fixed top-4 right-4">
-        <ThemeToggle />
-      </div>
+    <div className="min-h-screen bg-[linear-gradient(160deg,#6518EA_0%,#AD7DFF_45%,#FFE796_100%)]">
+      <div className="mx-auto flex max-w-sm flex-col items-center gap-6 p-6 pt-16">
+        {page.avatar_url && (
+          <img
+            src={page.avatar_url}
+            alt={page.title}
+            className="size-20 rounded-full object-cover shadow-lg"
+          />
+        )}
 
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-xl font-semibold">{page.title}</h1>
-        {page.description && <p className="text-sm text-muted-foreground">{page.description}</p>}
-      </div>
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h1 className="text-xl font-semibold text-white">{page.title}</h1>
+          {page.description && <p className="text-sm text-white/80">{page.description}</p>}
+        </div>
 
-      <div className="flex w-full flex-col gap-3">
-        {activeLinks.map((link) => (
-          <PublicLinkBlock key={link.id} link={link} onInteract={handleLinkInteract} />
-        ))}
+        <div className="flex w-full flex-col gap-3">
+          {sections.map((section) =>
+            section.type === 'plain' ? (
+              <PublicLinkBlock key={section.link.id} link={section.link} onInteract={handleLinkInteract} />
+            ) : (
+              <PublicCollapsibleSection
+                key={section.title.id}
+                section={section}
+                onInteract={handleLinkInteract}
+              />
+            ),
+          )}
+        </div>
+
+        {icons.length > 0 && <PublicSocialIcons icons={icons} onInteract={handleLinkInteract} />}
       </div>
     </div>
   )

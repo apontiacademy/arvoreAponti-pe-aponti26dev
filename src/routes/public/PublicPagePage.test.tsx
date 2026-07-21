@@ -41,6 +41,18 @@ vi.mock('./components/PublicLinkBlock', () => ({
   ),
 }))
 
+vi.mock('./components/PublicCollapsibleSection', () => ({
+  PublicCollapsibleSection: ({
+    section,
+  }: {
+    section: { title: { label: string | null } }
+  }) => <div>Secao: {section.title.label}</div>,
+}))
+
+vi.mock('./components/PublicSocialIcons', () => ({
+  PublicSocialIcons: ({ icons }: { icons: Array<{ id: string }> }) => <div>Icones: {icons.length}</div>,
+}))
+
 import PublicPagePage from './PublicPagePage'
 
 function renderPublicPage() {
@@ -128,5 +140,58 @@ describe('PublicPagePage', () => {
       linkId: 'link-1',
       eventType: 'click',
     })
+  })
+
+  it('exibe o avatar quando a pagina tem avatar_url', () => {
+    usePublicPageMock.mockReturnValue({
+      data: { ...page, avatar_url: 'https://exemplo.com/foto.png' },
+      isLoading: false,
+      isError: false,
+    })
+    const { container } = renderPublicPage()
+
+    expect(container.querySelector('img')).toHaveAttribute('src', 'https://exemplo.com/foto.png')
+  })
+
+  it('nao exibe avatar quando a pagina nao tem avatar_url', () => {
+    usePublicPageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    const { container } = renderPublicPage()
+
+    expect(container.querySelector('img')).not.toBeInTheDocument()
+  })
+
+  it('renderiza uma secao colapsavel quando ha um titulo marcado como collapsible', () => {
+    usePublicPageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    useLinksMock.mockReturnValue({
+      data: [
+        {
+          id: 'title-1',
+          type: 'title',
+          label: 'Mais links',
+          payload: { collapsible: true },
+          is_active: true,
+        },
+        { id: 'link-1', type: 'link', label: 'Escondido', payload: {}, is_active: true },
+      ],
+      isLoading: false,
+      isError: false,
+    })
+
+    renderPublicPage()
+
+    expect(screen.getByText('Secao: Mais links')).toBeInTheDocument()
+  })
+
+  it('renderiza a fileira de icones sociais quando ha links do tipo suportado', () => {
+    usePublicPageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    useLinksMock.mockReturnValue({
+      data: [{ id: 'ig-1', type: 'instagram', label: null, url: '@x', payload: {}, is_active: true }],
+      isLoading: false,
+      isError: false,
+    })
+
+    renderPublicPage()
+
+    expect(screen.getByText('Icones: 1')).toBeInTheDocument()
   })
 })
