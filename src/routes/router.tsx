@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { LumaSpin } from '@/components/ui/luma-spin'
 import { AuthGuard } from '@/features/auth/AuthGuard'
 
 const LoginPage = lazy(() => import('./login/LoginPage'))
@@ -15,7 +16,18 @@ const PublicPagePage = lazy(() => import('./public/PublicPagePage'))
 const NotFoundPage = lazy(() => import('./not-found/NotFoundPage'))
 
 function withSuspense(element: React.ReactNode) {
-  return <Suspense fallback={<div role="status">Carregando...</div>}>{element}</Suspense>
+  return (
+    <Suspense
+      fallback={
+        <div role="status" className="flex min-h-screen items-center justify-center">
+          <LumaSpin />
+          <span className="sr-only">Carregando...</span>
+        </div>
+      }
+    >
+      {element}
+    </Suspense>
+  )
 }
 
 export const router = createBrowserRouter([

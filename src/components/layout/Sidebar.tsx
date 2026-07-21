@@ -1,8 +1,9 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { LayoutDashboard, ListTree, BarChart3, User, Settings } from 'lucide-react'
+import { LayoutDashboard, ListTree, BarChart3, User, Settings, LogOut } from 'lucide-react'
 import {
   Sidebar as SidebarPrimitive,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -10,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { supabase } from '@/lib/supabase'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -50,6 +52,19 @@ export function Sidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => supabase.auth.signOut()}
+            >
+              <LogOut />
+              <span>Sair</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </SidebarPrimitive>
   )
 }

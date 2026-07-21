@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import { usePublicPage } from '@/features/public/usePublicPage'
 import { useLinks, type Link } from '@/features/links/useLinks'
 import { recordAnalyticsEvent } from '@/features/public/analytics'
@@ -55,7 +56,11 @@ export default function PublicPagePage() {
   const activeLinks = (links ?? []).filter((link) => link.is_active)
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-sm flex-col items-center gap-6 p-6 pt-16">
+    <div className="relative mx-auto flex min-h-screen max-w-sm flex-col items-center gap-6 p-6 pt-16">
+      <div className="fixed top-4 right-4">
+        <ThemeToggle />
+      </div>
+
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-xl font-semibold">{page.title}</h1>
         {page.description && <p className="text-sm text-muted-foreground">{page.description}</p>}
