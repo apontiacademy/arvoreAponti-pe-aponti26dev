@@ -36,21 +36,25 @@ export default function PublicPagePage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto flex min-h-screen max-w-sm flex-col items-center gap-4 p-6 pt-16">
-        <Skeleton className="h-6 w-40" />
-        <Skeleton className="h-4 w-56" />
-        <Skeleton className="h-14 w-full" />
-        <Skeleton className="h-14 w-full" />
+      <div className="min-h-screen bg-[linear-gradient(160deg,#6518EA_0%,#AD7DFF_45%,#FFE796_100%)]">
+        <div className="mx-auto flex min-h-screen max-w-sm flex-col items-center gap-6 p-6 pt-16">
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-56" />
+          <Skeleton className="h-14 w-full" />
+          <Skeleton className="h-14 w-full" />
+        </div>
       </div>
     )
   }
 
   if (isError || !page) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          Esta página não existe ou não está mais disponível.
-        </p>
+      <div className="min-h-screen bg-[linear-gradient(160deg,#6518EA_0%,#AD7DFF_45%,#FFE796_100%)]">
+        <div className="flex min-h-screen items-center justify-center p-6 text-center">
+          <p className="text-sm text-white/90">
+            Esta página não existe ou não está mais disponível.
+          </p>
+        </div>
       </div>
     )
   }
