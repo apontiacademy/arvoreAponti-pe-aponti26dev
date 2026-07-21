@@ -8,15 +8,15 @@ interface PublicLinkBlockProps {
 }
 
 const buttonClassName =
-  'block w-full rounded-xl bg-primary px-4 py-3 text-center text-sm font-medium text-primary-foreground shadow-sm transition hover:scale-[1.02] hover:bg-brand-purple-dark'
+  'block w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-medium text-primary shadow-sm transition hover:scale-[1.02] hover:bg-white/90'
 
 export function PublicLinkBlock({ link, onInteract }: PublicLinkBlockProps) {
   if (link.type === 'title') {
-    return <h2 className="pt-2 text-center text-lg font-semibold">{link.label}</h2>
+    return <h2 className="pt-2 text-center text-lg font-semibold text-white">{link.label}</h2>
   }
 
   if (link.type === 'text') {
-    return <p className="text-center text-sm text-muted-foreground">{link.label}</p>
+    return <p className="text-center text-sm text-white/80">{link.label}</p>
   }
 
   if (link.type === 'image') {
