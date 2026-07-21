@@ -8,7 +8,7 @@ interface PublicLinkBlockProps {
 }
 
 const buttonClassName =
-  'block w-full rounded-xl bg-card px-4 py-3 text-center text-sm font-medium ring-1 ring-foreground/10 transition-transform hover:scale-[1.02]'
+  'block w-full rounded-xl bg-primary px-4 py-3 text-center text-sm font-medium text-primary-foreground shadow-sm transition hover:scale-[1.02] hover:bg-brand-purple-dark'
 
 export function PublicLinkBlock({ link, onInteract }: PublicLinkBlockProps) {
   if (link.type === 'title') {
