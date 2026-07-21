@@ -11,6 +11,8 @@ import { PublicLinkBlock } from './components/PublicLinkBlock'
 import { PublicCollapsibleSection } from './components/PublicCollapsibleSection'
 import { PublicSocialIcons } from './components/PublicSocialIcons'
 
+const PAGE_GRADIENT = 'min-h-screen bg-[linear-gradient(160deg,#6518EA_0%,#AD7DFF_45%,#FFE796_100%)]'
+
 export default function PublicPagePage() {
   const { slug } = useParams<{ slug: string }>()
   const { data: page, isLoading, isError } = usePublicPage(slug)
@@ -36,7 +38,7 @@ export default function PublicPagePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[linear-gradient(160deg,#6518EA_0%,#AD7DFF_45%,#FFE796_100%)]">
+      <div className={PAGE_GRADIENT}>
         <div className="mx-auto flex min-h-screen max-w-sm flex-col items-center gap-6 p-6 pt-16">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-4 w-56" />
@@ -49,7 +51,7 @@ export default function PublicPagePage() {
 
   if (isError || !page) {
     return (
-      <div className="min-h-screen bg-[linear-gradient(160deg,#6518EA_0%,#AD7DFF_45%,#FFE796_100%)]">
+      <div className={PAGE_GRADIENT}>
         <div className="flex min-h-screen items-center justify-center p-6 text-center">
           <p className="text-sm text-white/90">
             Esta página não existe ou não está mais disponível.
