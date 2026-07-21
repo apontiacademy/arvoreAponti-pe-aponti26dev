@@ -225,7 +225,9 @@ export default function PageEditPage() {
           <CardDescription>Título, URL e descrição da árvore.</CardDescription>
         </CardHeader>
         <CardContent>
-          <AvatarUploader pageId={page.id} ownerId={page.owner_id} avatarUrl={page.avatar_url} />
+          <div className="mb-4">
+            <AvatarUploader pageId={page.id} ownerId={page.owner_id} avatarUrl={page.avatar_url} />
+          </div>
           <form className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="title">Título</Label>
