@@ -113,7 +113,7 @@ describe('LinkBlockCard', () => {
   it('exibe o switch Colapsável para blocos do tipo titulo, com o estado correto', () => {
     renderCard({ ...baseLink, type: 'title', payload: { collapsible: true } })
 
-    const collapsibleSwitch = screen.getByRole('switch', { name: 'Colapsável' })
+    const collapsibleSwitch = screen.getByRole('switch', { name: 'Bloco colapsável' })
     expect(collapsibleSwitch).toBeInTheDocument()
     expect(collapsibleSwitch).toHaveAttribute('aria-checked', 'true')
   })
@@ -121,18 +121,31 @@ describe('LinkBlockCard', () => {
   it('nao exibe o switch Colapsável para tipos diferentes de titulo', () => {
     renderCard({ ...baseLink, type: 'link' })
 
-    expect(screen.queryByRole('switch', { name: 'Colapsável' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('switch', { name: 'Bloco colapsável' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('switch', { name: 'Bloco não colapsável' })).not.toBeInTheDocument()
   })
 
-  it('alterna um bloco de titulo entre colapsavel e nao colapsavel', async () => {
+  it('alterna um bloco de titulo de nao colapsavel para colapsavel', async () => {
     const user = userEvent.setup()
     renderCard({ ...baseLink, type: 'title', payload: {} })
 
-    await user.click(screen.getByRole('switch', { name: 'Colapsável' }))
+    await user.click(screen.getByRole('switch', { name: 'Bloco não colapsável' }))
 
     expect(updateMutate).toHaveBeenCalledWith({
       id: 'link-1',
       values: { payload: { collapsible: true } },
+    })
+  })
+
+  it('alterna um bloco de titulo de colapsavel para nao colapsavel, preservando outras chaves do payload', async () => {
+    const user = userEvent.setup()
+    renderCard({ ...baseLink, type: 'title', payload: { collapsible: true, other: 'value' } })
+
+    await user.click(screen.getByRole('switch', { name: 'Bloco colapsável' }))
+
+    expect(updateMutate).toHaveBeenCalledWith({
+      id: 'link-1',
+      values: { payload: { collapsible: false, other: 'value' } },
     })
   })
 })

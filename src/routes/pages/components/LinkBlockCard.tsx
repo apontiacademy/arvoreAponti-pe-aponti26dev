@@ -155,7 +155,7 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
           <Switch
             checked={isCollapsibleTitle(link)}
             onCheckedChange={handleToggleCollapsible}
-            aria-label="Colapsável"
+            aria-label={isCollapsibleTitle(link) ? 'Bloco colapsável' : 'Bloco não colapsável'}
           />
         )}
         <Switch
