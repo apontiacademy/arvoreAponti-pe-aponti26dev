@@ -1,5 +1,8 @@
 import { useState } from 'react'
+import { Monitor, Moon, Sun } from 'lucide-react'
+import { useTheme } from 'next-themes'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
@@ -21,6 +24,12 @@ import type { Tables } from '@/lib/database.types'
 
 type ProfileRow = Tables<'profiles'>
 
+const THEME_OPTIONS = [
+  { value: 'light', label: 'Claro', Icon: Sun },
+  { value: 'dark', label: 'Escuro', Icon: Moon },
+  { value: 'system', label: 'Sistema', Icon: Monitor },
+] as const
+
 export default function SettingsPage() {
   const { session } = useSession()
   const { data: profile } = useProfile(session?.user.id)
@@ -29,8 +38,38 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold">Configurações</h1>
+      <AppearanceSection />
       {isAdmin && <UsersSection currentUserId={session?.user.id} />}
     </div>
+  )
+}
+
+function AppearanceSection() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Aparência</CardTitle>
+        <CardDescription>Escolha como o Aponti Link Center deve aparecer para você.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex gap-2">
+          {THEME_OPTIONS.map(({ value, label, Icon }) => (
+            <Button
+              key={value}
+              type="button"
+              variant={theme === value ? 'default' : 'outline'}
+              onClick={() => setTheme(value)}
+              aria-pressed={theme === value}
+            >
+              <Icon />
+              {label}
+            </Button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
