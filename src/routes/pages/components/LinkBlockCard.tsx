@@ -150,19 +150,25 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-3">
         {link.type === 'title' && (
-          <Switch
-            checked={isCollapsibleTitle(link)}
-            onCheckedChange={handleToggleCollapsible}
-            aria-label={isCollapsibleTitle(link) ? 'Bloco colapsável' : 'Bloco não colapsável'}
-          />
+          <div className="flex flex-col items-center gap-1">
+            <Switch
+              checked={isCollapsibleTitle(link)}
+              onCheckedChange={handleToggleCollapsible}
+              aria-label={isCollapsibleTitle(link) ? 'Bloco colapsável' : 'Bloco não colapsável'}
+            />
+            <span className="text-[10px] leading-none text-muted-foreground">Expansível</span>
+          </div>
         )}
-        <Switch
-          checked={link.is_active}
-          onCheckedChange={handleToggleActive}
-          aria-label={link.is_active ? 'Bloco ativo' : 'Bloco inativo'}
-        />
+        <div className="flex flex-col items-center gap-1">
+          <Switch
+            checked={link.is_active}
+            onCheckedChange={handleToggleActive}
+            aria-label={link.is_active ? 'Bloco ativo' : 'Bloco inativo'}
+          />
+          <span className="text-[10px] leading-none text-muted-foreground">Ativo</span>
+        </div>
         <AlertDialog>
           <AlertDialogTrigger
             render={<Button variant="ghost" size="icon-sm" aria-label="Excluir bloco" />}

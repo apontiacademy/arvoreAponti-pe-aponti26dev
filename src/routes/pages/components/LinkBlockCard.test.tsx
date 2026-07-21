@@ -78,6 +78,21 @@ describe('LinkBlockCard', () => {
     expect(updateMutate).toHaveBeenCalledWith({ id: 'link-1', values: { is_active: false } })
   })
 
+  it('exibe uma legenda visivel "Ativo" abaixo do switch de ativo/inativo', () => {
+    renderCard({ ...baseLink, type: 'link' })
+    expect(screen.getByText('Ativo')).toBeInTheDocument()
+  })
+
+  it('exibe uma legenda visivel "Expansível" para blocos do tipo titulo', () => {
+    renderCard({ ...baseLink, type: 'title' })
+    expect(screen.getByText('Expansível')).toBeInTheDocument()
+  })
+
+  it('nao exibe a legenda "Expansível" para outros tipos de bloco', () => {
+    renderCard({ ...baseLink, type: 'link' })
+    expect(screen.queryByText('Expansível')).not.toBeInTheDocument()
+  })
+
   it('nao autosalva e exibe erro quando a URL e invalida apos o campo perder o foco', async () => {
     const user = userEvent.setup()
     renderCard({ ...baseLink, type: 'link' })
