@@ -65,7 +65,7 @@ export default function PublicPagePage() {
   const { icons, sections } = groupPublicLinks(activeLinks)
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(160deg,#6518EA_0%,#AD7DFF_45%,#FFE796_100%)]">
+    <div className={PAGE_GRADIENT}>
       <div className="mx-auto flex max-w-sm flex-col items-center gap-6 p-6 pt-16">
         {page.avatar_url && (
           <img
