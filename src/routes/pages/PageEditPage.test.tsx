@@ -53,6 +53,10 @@ vi.mock('./components/LinkBlockCard', () => ({
   ),
 }))
 
+vi.mock('./components/AvatarUploader', () => ({
+  AvatarUploader: ({ pageId }: { pageId: string }) => <div>Avatar de {pageId}</div>,
+}))
+
 import PageEditPage from './PageEditPage'
 
 function renderEdit() {
@@ -72,6 +76,7 @@ const page = {
   is_published: false,
   theme_id: 'theme-1',
   settings: {},
+  avatar_url: null,
   updated_at: '2026-07-10T00:00:00Z',
   created_at: '2026-07-01T00:00:00Z',
 }
@@ -190,5 +195,12 @@ describe('PageEditPage', () => {
       { pageId: 'page-1', type: 'link', order: 0 },
       expect.anything(),
     )
+  })
+
+  it('renderiza o uploader de avatar', () => {
+    usePageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    renderEdit()
+
+    expect(screen.getByText('Avatar de page-1')).toBeInTheDocument()
   })
 })

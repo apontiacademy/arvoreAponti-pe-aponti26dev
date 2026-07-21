@@ -44,6 +44,7 @@ import { useCreateLink } from '@/features/links/useCreateLink'
 import { useReorderLinks } from '@/features/links/useReorderLinks'
 import { LINK_TYPES } from '@/features/links/linkTypes'
 import { LinkBlockCard } from './components/LinkBlockCard'
+import { AvatarUploader } from './components/AvatarUploader'
 
 const AUTOSAVE_DELAY_MS = 800
 
@@ -224,6 +225,7 @@ export default function PageEditPage() {
           <CardDescription>Título, URL e descrição da árvore.</CardDescription>
         </CardHeader>
         <CardContent>
+          <AvatarUploader pageId={page.id} ownerId={page.owner_id} avatarUrl={page.avatar_url} />
           <form className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="title">Título</Label>
