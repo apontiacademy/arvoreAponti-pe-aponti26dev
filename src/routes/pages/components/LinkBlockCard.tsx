@@ -20,6 +20,7 @@ import { useUpdateLink } from '@/features/links/useUpdateLink'
 import { useDeleteLink } from '@/features/links/useDeleteLink'
 import { LINK_TYPE_MAP, type LinkType } from '@/features/links/linkTypes'
 import { validateLabelField, validateUrlField } from '@/features/links/linkValidation'
+import { isCollapsibleTitle, withCollapsible } from '@/features/links/linkPayload'
 import type { Link } from '@/features/links/useLinks'
 
 const AUTOSAVE_DELAY_MS = 800
@@ -77,6 +78,10 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
 
   function handleToggleActive(checked: boolean) {
     updateLink.mutate({ id: link.id, values: { is_active: checked } })
+  }
+
+  function handleToggleCollapsible(checked: boolean) {
+    updateLink.mutate({ id: link.id, values: { payload: withCollapsible(link.payload, checked) } })
   }
 
   function handleDelete() {
@@ -146,6 +151,13 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
       </div>
 
       <div className="flex flex-col items-center gap-2">
+        {link.type === 'title' && (
+          <Switch
+            checked={isCollapsibleTitle(link)}
+            onCheckedChange={handleToggleCollapsible}
+            aria-label="Colapsável"
+          />
+        )}
         <Switch
           checked={link.is_active}
           onCheckedChange={handleToggleActive}

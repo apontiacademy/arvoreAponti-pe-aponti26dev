@@ -109,4 +109,30 @@ describe('LinkBlockCard', () => {
 
     expect(deleteMutate).toHaveBeenCalledWith({ id: 'link-1', pageId: 'page-1' })
   })
+
+  it('exibe o switch Colapsável para blocos do tipo titulo, com o estado correto', () => {
+    renderCard({ ...baseLink, type: 'title', payload: { collapsible: true } })
+
+    const collapsibleSwitch = screen.getByRole('switch', { name: 'Colapsável' })
+    expect(collapsibleSwitch).toBeInTheDocument()
+    expect(collapsibleSwitch).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('nao exibe o switch Colapsável para tipos diferentes de titulo', () => {
+    renderCard({ ...baseLink, type: 'link' })
+
+    expect(screen.queryByRole('switch', { name: 'Colapsável' })).not.toBeInTheDocument()
+  })
+
+  it('alterna um bloco de titulo entre colapsavel e nao colapsavel', async () => {
+    const user = userEvent.setup()
+    renderCard({ ...baseLink, type: 'title', payload: {} })
+
+    await user.click(screen.getByRole('switch', { name: 'Colapsável' }))
+
+    expect(updateMutate).toHaveBeenCalledWith({
+      id: 'link-1',
+      values: { payload: { collapsible: true } },
+    })
+  })
 })
