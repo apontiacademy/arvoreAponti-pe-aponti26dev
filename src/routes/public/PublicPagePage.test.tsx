@@ -194,4 +194,35 @@ describe('PublicPagePage', () => {
 
     expect(screen.getByText('Icones: 1')).toBeInTheDocument()
   })
+
+  it('centraliza o texto da descricao por padrao (sem settings.descriptionAlign)', () => {
+    usePublicPageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    renderPublicPage()
+
+    expect(screen.getByText('A melhor loja da cidade')).toHaveClass('text-center')
+  })
+
+  it('alinha o texto da descricao a esquerda quando settings.descriptionAlign e left', () => {
+    usePublicPageMock.mockReturnValue({
+      data: { ...page, settings: { descriptionAlign: 'left' } },
+      isLoading: false,
+      isError: false,
+    })
+    renderPublicPage()
+
+    expect(screen.getByText('A melhor loja da cidade')).toHaveClass('text-left')
+  })
+
+  it('preserva quebras de linha na descricao', () => {
+    usePublicPageMock.mockReturnValue({
+      data: { ...page, description: 'Linha 1\nLinha 2' },
+      isLoading: false,
+      isError: false,
+    })
+    const { container } = renderPublicPage()
+
+    const description = container.querySelector('p.whitespace-pre-line')
+    expect(description).toHaveTextContent('Linha 1')
+    expect(description).toHaveTextContent('Linha 2')
+  })
 })
