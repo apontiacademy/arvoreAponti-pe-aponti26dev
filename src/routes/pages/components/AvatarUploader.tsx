@@ -42,7 +42,7 @@ export function AvatarUploader({ pageId, ownerId, avatarUrl }: AvatarUploaderPro
           type="button"
           onClick={() => inputRef.current?.click()}
           aria-label="Alterar foto"
-          className="absolute inset-0 flex items-center justify-center bg-black/0 text-transparent transition hover:bg-black/40 hover:text-white"
+          className="absolute inset-0 flex items-center justify-center bg-black/0 text-transparent outline-none transition hover:bg-black/40 hover:text-white focus-visible:bg-black/40 focus-visible:text-white focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <Camera className="size-5" />
         </button>
