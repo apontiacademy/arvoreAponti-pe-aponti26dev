@@ -27,7 +27,7 @@ describe('PublicSocialIcons', () => {
       />,
     )
 
-    const anchor = screen.getByRole('link')
+    const anchor = screen.getByRole('link', { name: 'Instagram' })
     expect(anchor).toHaveAttribute('href', 'https://instagram.com/meuuser')
   })
 

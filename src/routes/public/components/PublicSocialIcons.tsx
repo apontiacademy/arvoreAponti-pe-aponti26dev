@@ -1,5 +1,6 @@
 import { SiInstagram, SiSpotify, SiTelegram, SiTiktok, SiYoutube } from '@icons-pack/react-simple-icons'
 import { resolveLinkHref } from '@/features/public/resolveLinkHref'
+import { LINK_TYPE_MAP, type LinkType } from '@/features/links/linkTypes'
 import type { Link } from '@/features/links/useLinks'
 
 const ICON_COMPONENTS: Partial<Record<string, typeof SiInstagram>> = {
@@ -30,7 +31,7 @@ export function PublicSocialIcons({ icons, onInteract }: PublicSocialIconsProps)
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => onInteract(link)}
-            aria-label={link.type}
+            aria-label={LINK_TYPE_MAP[link.type as LinkType]?.label ?? link.type}
           >
             <Icon size={26} color="#ffffff" />
           </a>
