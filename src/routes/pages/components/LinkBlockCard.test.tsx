@@ -78,6 +78,21 @@ describe('LinkBlockCard', () => {
     expect(updateMutate).toHaveBeenCalledWith({ id: 'link-1', values: { is_active: false } })
   })
 
+  it('exibe uma legenda visivel "Ativo" abaixo do switch de ativo/inativo', () => {
+    renderCard({ ...baseLink, type: 'link' })
+    expect(screen.getByText('Ativo')).toBeInTheDocument()
+  })
+
+  it('exibe uma legenda visivel "Expansível" para blocos do tipo titulo', () => {
+    renderCard({ ...baseLink, type: 'title' })
+    expect(screen.getByText('Expansível')).toBeInTheDocument()
+  })
+
+  it('nao exibe a legenda "Expansível" para outros tipos de bloco', () => {
+    renderCard({ ...baseLink, type: 'link' })
+    expect(screen.queryByText('Expansível')).not.toBeInTheDocument()
+  })
+
   it('nao autosalva e exibe erro quando a URL e invalida apos o campo perder o foco', async () => {
     const user = userEvent.setup()
     renderCard({ ...baseLink, type: 'link' })
@@ -108,5 +123,44 @@ describe('LinkBlockCard', () => {
     await user.click(await screen.findByRole('button', { name: /^excluir$/i }))
 
     expect(deleteMutate).toHaveBeenCalledWith({ id: 'link-1', pageId: 'page-1' })
+  })
+
+  it('exibe o switch Colapsável para blocos do tipo titulo, com o estado correto', () => {
+    renderCard({ ...baseLink, type: 'title', payload: { collapsible: true } })
+
+    const collapsibleSwitch = screen.getByRole('switch', { name: 'Bloco colapsável' })
+    expect(collapsibleSwitch).toBeInTheDocument()
+    expect(collapsibleSwitch).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('nao exibe o switch Colapsável para tipos diferentes de titulo', () => {
+    renderCard({ ...baseLink, type: 'link' })
+
+    expect(screen.queryByRole('switch', { name: 'Bloco colapsável' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('switch', { name: 'Bloco não colapsável' })).not.toBeInTheDocument()
+  })
+
+  it('alterna um bloco de titulo de nao colapsavel para colapsavel', async () => {
+    const user = userEvent.setup()
+    renderCard({ ...baseLink, type: 'title', payload: {} })
+
+    await user.click(screen.getByRole('switch', { name: 'Bloco não colapsável' }))
+
+    expect(updateMutate).toHaveBeenCalledWith({
+      id: 'link-1',
+      values: { payload: { collapsible: true } },
+    })
+  })
+
+  it('alterna um bloco de titulo de colapsavel para nao colapsavel, preservando outras chaves do payload', async () => {
+    const user = userEvent.setup()
+    renderCard({ ...baseLink, type: 'title', payload: { collapsible: true, other: 'value' } })
+
+    await user.click(screen.getByRole('switch', { name: 'Bloco colapsável' }))
+
+    expect(updateMutate).toHaveBeenCalledWith({
+      id: 'link-1',
+      values: { payload: { collapsible: false, other: 'value' } },
+    })
   })
 })

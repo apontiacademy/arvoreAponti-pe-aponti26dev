@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Reorder } from 'framer-motion'
-import { ArrowLeft, ExternalLink, Plus, Trash2 } from 'lucide-react'
+import { AlignCenter, AlignLeft, ArrowLeft, ExternalLink, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -39,11 +39,17 @@ import { usePage } from '@/features/pages/usePage'
 import { useUpdatePage } from '@/features/pages/useUpdatePage'
 import { useDeletePage } from '@/features/pages/useDeletePage'
 import { pageFormSchema, type PageFormValues } from '@/features/pages/pageSchema'
+import {
+  getDescriptionAlign,
+  withDescriptionAlign,
+  type DescriptionAlign,
+} from '@/features/pages/pageSettings'
 import { useLinks } from '@/features/links/useLinks'
 import { useCreateLink } from '@/features/links/useCreateLink'
 import { useReorderLinks } from '@/features/links/useReorderLinks'
 import { LINK_TYPES } from '@/features/links/linkTypes'
 import { LinkBlockCard } from './components/LinkBlockCard'
+import { AvatarUploader } from './components/AvatarUploader'
 
 const AUTOSAVE_DELAY_MS = 800
 
@@ -144,6 +150,17 @@ export default function PageEditPage() {
     )
   }
 
+  function handleDescriptionAlignChange(align: DescriptionAlign) {
+    if (!page) return
+    updatePage.mutate(
+      { id: page.id, values: { settings: withDescriptionAlign(page.settings, align) } },
+      {
+        onSuccess: () => toast.success('Alinhamento da descrição atualizado.'),
+        onError: () => toast.error('Não foi possível atualizar o alinhamento.'),
+      },
+    )
+  }
+
   function handleDelete() {
     if (!page) return
     deletePage.mutate(page.id, {
@@ -224,6 +241,9 @@ export default function PageEditPage() {
           <CardDescription>Título, URL e descrição da árvore.</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <AvatarUploader pageId={page.id} ownerId={page.owner_id} avatarUrl={page.avatar_url} />
+          </div>
           <form className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="title">Título</Label>
@@ -244,6 +264,29 @@ export default function PageEditPage() {
               {errors.description && (
                 <p className="text-sm text-destructive">{errors.description.message}</p>
               )}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Alinhamento do texto:</span>
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant={getDescriptionAlign(page.settings) === 'left' ? 'default' : 'outline'}
+                  onClick={() => handleDescriptionAlignChange('left')}
+                  aria-pressed={getDescriptionAlign(page.settings) === 'left'}
+                  aria-label="Alinhar descrição à esquerda"
+                >
+                  <AlignLeft />
+                </Button>
+                <Button
+                  type="button"
+                  size="icon-sm"
+                  variant={getDescriptionAlign(page.settings) === 'center' ? 'default' : 'outline'}
+                  onClick={() => handleDescriptionAlignChange('center')}
+                  aria-pressed={getDescriptionAlign(page.settings) === 'center'}
+                  aria-label="Centralizar descrição"
+                >
+                  <AlignCenter />
+                </Button>
+              </div>
             </div>
             <div className="flex items-center justify-between rounded-lg border p-3">
               <div className="flex flex-col">
