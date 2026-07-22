@@ -53,6 +53,10 @@ vi.mock('./components/LinkBlockCard', () => ({
   ),
 }))
 
+vi.mock('./components/AvatarUploader', () => ({
+  AvatarUploader: ({ pageId }: { pageId: string }) => <div>Avatar de {pageId}</div>,
+}))
+
 import PageEditPage from './PageEditPage'
 
 function renderEdit() {
@@ -72,6 +76,7 @@ const page = {
   is_published: false,
   theme_id: 'theme-1',
   settings: {},
+  avatar_url: null,
   updated_at: '2026-07-10T00:00:00Z',
   created_at: '2026-07-01T00:00:00Z',
 }
@@ -189,6 +194,54 @@ describe('PageEditPage', () => {
     expect(createLinkMutate).toHaveBeenCalledWith(
       { pageId: 'page-1', type: 'link', order: 0 },
       expect.anything(),
+    )
+  })
+
+  it('renderiza o uploader de avatar', () => {
+    usePageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    renderEdit()
+
+    expect(screen.getByText('Avatar de page-1')).toBeInTheDocument()
+  })
+
+  it('mostra o botao de centralizar como ativo por padrao (settings vazio)', () => {
+    usePageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    renderEdit()
+
+    expect(screen.getByRole('button', { name: 'Centralizar descrição' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(screen.getByRole('button', { name: 'Alinhar descrição à esquerda' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+  })
+
+  it('altera o alinhamento da descricao para esquerda ao clicar no botao', async () => {
+    usePageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    const user = userEvent.setup()
+    renderEdit()
+
+    await user.click(screen.getByRole('button', { name: 'Alinhar descrição à esquerda' }))
+
+    expect(updateMutate).toHaveBeenCalledWith(
+      { id: 'page-1', values: { settings: { descriptionAlign: 'left' } } },
+      expect.anything(),
+    )
+  })
+
+  it('mostra o botao de esquerda como ativo quando settings.descriptionAlign e left', () => {
+    usePageMock.mockReturnValue({
+      data: { ...page, settings: { descriptionAlign: 'left' } },
+      isLoading: false,
+      isError: false,
+    })
+    renderEdit()
+
+    expect(screen.getByRole('button', { name: 'Alinhar descrição à esquerda' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
     )
   })
 })

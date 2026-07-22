@@ -54,6 +54,7 @@ const originalPage = {
   theme_id: 'theme-1',
   settings: {},
   is_published: true,
+  avatar_url: 'https://exemplo.com/avatar.png',
 } as unknown as Page
 
 describe('useDuplicatePage', () => {
@@ -149,5 +150,20 @@ describe('useDuplicatePage', () => {
         is_active: false,
       },
     ])
+  })
+
+  it('copia o avatar_url da pagina original', async () => {
+    const { pagesInsert } = setupSupabase({
+      pageInsertResults: [{ data: { id: 'page-2' }, error: null }],
+    })
+
+    const { result } = renderHook(() => useDuplicatePage(), { wrapper: createWrapper() })
+    result.current.mutate(originalPage)
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+
+    expect(pagesInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ avatar_url: 'https://exemplo.com/avatar.png' }),
+    )
   })
 })

@@ -20,6 +20,7 @@ import { useUpdateLink } from '@/features/links/useUpdateLink'
 import { useDeleteLink } from '@/features/links/useDeleteLink'
 import { LINK_TYPE_MAP, type LinkType } from '@/features/links/linkTypes'
 import { validateLabelField, validateUrlField } from '@/features/links/linkValidation'
+import { isCollapsibleTitle, withCollapsible } from '@/features/links/linkPayload'
 import type { Link } from '@/features/links/useLinks'
 
 const AUTOSAVE_DELAY_MS = 800
@@ -77,6 +78,10 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
 
   function handleToggleActive(checked: boolean) {
     updateLink.mutate({ id: link.id, values: { is_active: checked } })
+  }
+
+  function handleToggleCollapsible(checked: boolean) {
+    updateLink.mutate({ id: link.id, values: { payload: withCollapsible(link.payload, checked) } })
   }
 
   function handleDelete() {
@@ -145,12 +150,25 @@ export function LinkBlockCard({ link, onDragEnd }: LinkBlockCardProps) {
         )}
       </div>
 
-      <div className="flex flex-col items-center gap-2">
-        <Switch
-          checked={link.is_active}
-          onCheckedChange={handleToggleActive}
-          aria-label={link.is_active ? 'Bloco ativo' : 'Bloco inativo'}
-        />
+      <div className="flex flex-col items-center gap-3">
+        {link.type === 'title' && (
+          <div className="flex flex-col items-center gap-1">
+            <Switch
+              checked={isCollapsibleTitle(link)}
+              onCheckedChange={handleToggleCollapsible}
+              aria-label={isCollapsibleTitle(link) ? 'Bloco colapsável' : 'Bloco não colapsável'}
+            />
+            <span className="text-[10px] leading-none text-muted-foreground">Expansível</span>
+          </div>
+        )}
+        <div className="flex flex-col items-center gap-1">
+          <Switch
+            checked={link.is_active}
+            onCheckedChange={handleToggleActive}
+            aria-label={link.is_active ? 'Bloco ativo' : 'Bloco inativo'}
+          />
+          <span className="text-[10px] leading-none text-muted-foreground">Ativo</span>
+        </div>
         <AlertDialog>
           <AlertDialogTrigger
             render={<Button variant="ghost" size="icon-sm" aria-label="Excluir bloco" />}
