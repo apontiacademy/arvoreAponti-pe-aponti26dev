@@ -23,6 +23,7 @@ export function useDuplicatePage() {
             description: page.description,
             theme_id: page.theme_id,
             settings: page.settings,
+            avatar_url: page.avatar_url,
             is_published: false,
           })
           .select()

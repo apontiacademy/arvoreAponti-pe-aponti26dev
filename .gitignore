@@ -27,3 +27,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local brainstorming session artifacts (superpowers skill)
+.superpowers/
