@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Footer } from '@/components/layout/Footer'
 import { cn } from '@/lib/utils'
 import { usePublicPage } from '@/features/public/usePublicPage'
 import { useLinks, type Link } from '@/features/links/useLinks'
@@ -108,6 +109,8 @@ export default function PublicPagePage() {
         </div>
 
         {icons.length > 0 && <PublicSocialIcons icons={icons} onInteract={handleLinkInteract} />}
+
+        <Footer variant="public" />
       </div>
     </div>
   )

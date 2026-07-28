@@ -225,4 +225,11 @@ describe('PublicPagePage', () => {
     expect(description).toHaveTextContent('Linha 1')
     expect(description).toHaveTextContent('Linha 2')
   })
+
+  it('exibe o footer de copyright na pagina publica', () => {
+    usePublicPageMock.mockReturnValue({ data: page, isLoading: false, isError: false })
+    renderPublicPage()
+
+    expect(screen.getByText(/copyright \(c\) 2026 aponti/i)).toBeInTheDocument()
+  })
 })
