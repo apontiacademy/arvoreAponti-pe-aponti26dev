@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { Separator } from '@/components/ui/separator'
 import { supabase } from '@/lib/supabase'
 import { Footer } from './Footer'
 
@@ -54,6 +55,7 @@ export function Sidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
+        <Separator />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -65,6 +67,7 @@ export function Sidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <Separator />
         <Footer variant="admin" />
       </SidebarFooter>
     </SidebarPrimitive>
