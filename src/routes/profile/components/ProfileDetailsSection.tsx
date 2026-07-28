@@ -68,8 +68,8 @@ export function ProfileDetailsSection({ profile }: ProfileDetailsSectionProps) {
             {errors.bio && <p className="text-sm text-destructive">{errors.bio.message}</p>}
           </div>
           <div>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Salvando...' : 'Salvar'}
+            <Button type="submit" disabled={isSubmitting || updateProfile.isPending}>
+              {isSubmitting || updateProfile.isPending ? 'Salvando...' : 'Salvar'}
             </Button>
           </div>
         </form>
