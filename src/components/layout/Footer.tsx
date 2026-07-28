@@ -11,8 +11,10 @@ const VARIANT_TEXT_CLASSES: Record<FooterProps['variant'], string> = {
 
 export function Footer({ variant }: FooterProps) {
   return (
-    <p className={cn('px-2 py-1.5 text-xs', VARIANT_TEXT_CLASSES[variant])}>
-      Copyright (c) 2026 Aponti · Desenvolvido por{' '}
+    <p className={cn('px-2 py-1.5 text-center text-xs', VARIANT_TEXT_CLASSES[variant])}>
+      Copyright (c) 2026 Aponti
+      <br />
+      Desenvolvido por{' '}
       <a
         href="https://www.linkedin.com/in/leandro-c-s/"
         target="_blank"

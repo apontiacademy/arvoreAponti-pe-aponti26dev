@@ -21,12 +21,14 @@ type FooterProps = {
 }
 ```
 
-Conteúdo fixo (mesmo texto/link nas duas variantes, só muda a cor):
+Conteúdo fixo (mesmo texto/link nas duas variantes, só muda a cor), em duas linhas centralizadas:
 
 ```
-Copyright (c) 2026 Aponti · Desenvolvido por Leandro Carvalho
+Copyright (c) 2026 Aponti
+Desenvolvido por Leandro Carvalho
 ```
 
+- Quebra de linha (`<br />`) entre "Copyright (c) 2026 Aponti" e "Desenvolvido por Leandro Carvalho" — texto centralizado (`text-center`), não em uma única linha com separador.
 - "Leandro Carvalho" é um `<a>` para `https://www.linkedin.com/in/leandro-c-s/`, com `target="_blank"` e `rel="noopener noreferrer"`.
 - `variant="admin"`: texto pequeno (`text-xs`), cor `text-sidebar-foreground/70` (mesma família de cor discreta usada no restante da Sidebar), link com hover sublinhado.
 - `variant="public"`: texto pequeno (`text-xs`), cor `text-white/70` (consistente com `text-white/80`/`text-white/90` já usados no restante do `PublicPagePage`), link com hover sublinhado.

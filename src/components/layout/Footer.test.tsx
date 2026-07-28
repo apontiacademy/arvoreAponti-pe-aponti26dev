@@ -25,4 +25,11 @@ describe('Footer', () => {
     render(<Footer variant="public" />)
     expect(screen.getByText(/copyright/i)).toHaveClass('text-white/70')
   })
+
+  it('quebra a linha entre o copyright e o credito de desenvolvimento, centralizado', () => {
+    render(<Footer variant="admin" />)
+    const paragraph = screen.getByText(/copyright/i)
+    expect(paragraph).toHaveClass('text-center')
+    expect(paragraph.querySelector('br')).toBeInTheDocument()
+  })
 })
