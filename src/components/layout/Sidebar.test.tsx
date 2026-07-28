@@ -58,4 +58,16 @@ describe('Sidebar', () => {
     await user.click(screen.getByRole('button', { name: /sair/i }))
     expect(supabase.auth.signOut).toHaveBeenCalled()
   })
+
+  it('exibe o footer de copyright no rodape do menu lateral', () => {
+    render(
+      <MemoryRouter>
+        <SidebarProvider>
+          <Sidebar />
+        </SidebarProvider>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText(/copyright \(c\) 2026 aponti/i)).toBeInTheDocument()
+  })
 })
