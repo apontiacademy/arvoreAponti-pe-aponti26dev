@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { supabase } from '@/lib/supabase'
+import { Footer } from './Footer'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -64,6 +65,7 @@ export function Sidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <Footer variant="admin" />
       </SidebarFooter>
     </SidebarPrimitive>
   )
