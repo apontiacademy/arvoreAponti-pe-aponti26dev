@@ -18,18 +18,20 @@ function getInitials(name: string) {
 
 export function Topbar() {
   const { session } = useSession()
-  const { data: profile, isLoading } = useProfile(session?.user.id)
+  const { data: profile, isLoading, isError } = useProfile(session?.user.id)
   const label = profile ? profile.display_name || profile.username : ''
 
   return (
     <header className="flex h-14 items-center justify-between gap-4 border-b px-4">
       <SidebarTrigger />
       <div className="flex flex-1 items-center justify-end gap-4">
-        {isLoading || !profile ? (
+        {isLoading ? (
           <div className="flex items-center gap-2">
             <Skeleton className="size-6 rounded-full" />
             <Skeleton className="h-4 w-24" />
           </div>
+        ) : isError || !profile ? (
+          <span className="text-sm text-muted-foreground">{session?.user.email}</span>
         ) : (
           <Button
             variant="ghost"

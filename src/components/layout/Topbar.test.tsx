@@ -94,4 +94,11 @@ describe('Topbar', () => {
 
     expect(screen.queryByText('user@aponti.com')).not.toBeInTheDocument()
   })
+
+  it('volta a exibir o email como fallback quando useProfile falha', () => {
+    useProfileMock.mockReturnValue({ data: undefined, isLoading: false, isError: true })
+    renderTopbar()
+
+    expect(screen.getByText('user@aponti.com')).toBeInTheDocument()
+  })
 })
