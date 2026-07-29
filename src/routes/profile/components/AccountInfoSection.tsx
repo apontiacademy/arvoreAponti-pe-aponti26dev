@@ -18,6 +18,10 @@ export function AccountInfoSection({ email, profile }: AccountInfoSectionProps) 
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm">
         <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">Nome de usuário</span>
+          <span>{profile.username}</span>
+        </div>
+        <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Email</span>
           <span>{email}</span>
         </div>

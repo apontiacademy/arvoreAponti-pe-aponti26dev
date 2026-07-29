@@ -12,11 +12,12 @@ const baseProfile = {
 }
 
 describe('AccountInfoSection', () => {
-  it('exibe o email, o papel admin e a data de criacao', () => {
+  it('exibe o nome de usuario, o email, o papel admin e a data de criacao', () => {
     render(
       <AccountInfoSection email="leandro@aponti.org.br" profile={{ ...baseProfile, role: 'admin' }} />,
     )
 
+    expect(screen.getByText('leandro')).toBeInTheDocument()
     expect(screen.getByText('leandro@aponti.org.br')).toBeInTheDocument()
     expect(screen.getByText('Admin')).toBeInTheDocument()
     expect(screen.getByText('15/01/2026')).toBeInTheDocument()

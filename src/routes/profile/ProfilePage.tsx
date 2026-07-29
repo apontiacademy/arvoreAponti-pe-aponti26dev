@@ -13,16 +13,18 @@ export default function ProfilePage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold">Perfil</h1>
       {isLoading ? (
-        <div className="flex max-w-lg flex-col gap-3">
-          <Skeleton className="h-40 w-full" />
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Skeleton className="h-64 w-full lg:col-span-2" />
           <Skeleton className="h-40 w-full" />
         </div>
       ) : isError || !profile ? (
         <p className="text-sm text-destructive">Não foi possível carregar seu perfil.</p>
       ) : (
-        <div className="flex max-w-lg flex-col gap-6">
-          <ProfileDetailsSection profile={profile} />
-          <PasswordSection />
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="flex flex-col gap-6 lg:col-span-2">
+            <ProfileDetailsSection profile={profile} />
+            <PasswordSection />
+          </div>
           <AccountInfoSection email={session?.user.email} profile={profile} />
         </div>
       )}
