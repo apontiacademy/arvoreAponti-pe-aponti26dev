@@ -38,6 +38,8 @@ Footer de copyright (2026-07-28): done — um componente compartilhado `Footer` 
 
 Página de Perfil (2026-07-28): done — `ProfilePage` deixou de ser placeholder. Três `Card`s (`ProfileDetailsSection`, `PasswordSection`, `AccountInfoSection`, em `src/routes/profile/components/`) deixam o usuário editar nome/bio/avatar (`display_name`/`bio`/`avatar_url`, colunas já existentes em `profiles`), trocar a própria senha (`supabase.auth.updateUser`, sem pedir a senha atual) e ver email/papel/data de criação somente leitura. Novos hooks `useUpdateProfile`/`useUploadProfileAvatar`/`useChangePassword` em `src/features/profiles/`. Novo bucket Storage `profile-avatars` (público, 5MB, mesmo padrão hardened de `page-avatars`). Ver `docs/superpowers/specs/2026-07-28-pagina-perfil-design.md`.
 
+Avatar no Topbar (2026-07-29): done — o `Topbar` do admin trocou o email cru do usuário logado por um link para `/profile` mostrando o `Avatar` (shadcn/Base UI, `src/components/ui/avatar.tsx`) e o `display_name` (ou `username` se `display_name` for nulo) do perfil, lido via `useProfile` (mesmo hook já usado por `ProfilePage`/`SettingsPage`). Sem `avatar_url`, mostra iniciais como fallback (`AvatarFallback`). Se `useProfile` falhar, volta a mostrar o email cru em vez de ficar preso num skeleton. Escopo deliberadamente restrito ao `Topbar` — a `Sidebar` não muda nesta iteração. Ver `docs/superpowers/specs/2026-07-29-avatar-topbar-design.md`.
+
 ## What is being built
 
 An internal tool for the company to manage "link tree" pages (Linktree/Bento.me/Beacons.ai style) — create, edit, and publish pages made of link/social/media blocks, with drag-and-drop reordering, per-page theming, and analytics. Access is restricted to authenticated employees only.
