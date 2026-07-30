@@ -17,6 +17,17 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
+const rememberMock = vi.fn()
+const forgetMock = vi.fn()
+let mockRememberedEmail: string | null = null
+vi.mock('@/features/auth/useRememberedEmail', () => ({
+  useRememberedEmail: () => ({
+    rememberedEmail: mockRememberedEmail,
+    remember: rememberMock,
+    forget: forgetMock,
+  }),
+}))
+
 import { supabase } from '@/lib/supabase'
 import LoginPage from './LoginPage'
 
@@ -31,6 +42,9 @@ function renderLogin() {
 describe('LoginPage', () => {
   beforeEach(() => {
     navigateMock.mockClear()
+    rememberMock.mockClear()
+    forgetMock.mockClear()
+    mockRememberedEmail = null
     vi.mocked(supabase.auth.signInWithPassword).mockReset()
   })
 
@@ -89,5 +103,66 @@ describe('LoginPage', () => {
 
     await screen.findByRole('button', { name: /^entrar$/i })
     expect(navigateMock).toHaveBeenCalledWith('/dashboard', { replace: true })
+  })
+
+  it('pre-preenche o email e marca o checkbox quando ha email salvo', () => {
+    mockRememberedEmail = 'saved@aponti.local'
+    renderLogin()
+
+    expect(screen.getByLabelText('Email')).toHaveValue('saved@aponti.local')
+    expect(screen.getByRole('checkbox', { name: /lembrar meu email/i })).toBeChecked()
+  })
+
+  it('chama remember com o email apos login bem sucedido com o checkbox marcado', async () => {
+    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
+      data: { session: {}, user: {} },
+      error: null,
+    } as never)
+    const user = userEvent.setup()
+    renderLogin()
+
+    await user.type(screen.getByLabelText('Email'), 'dev@aponti.local')
+    await user.type(screen.getByLabelText('Senha'), 'Test1234!aponti')
+    await user.click(screen.getByRole('checkbox', { name: /lembrar meu email/i }))
+    await user.click(screen.getByRole('button', { name: /entrar/i }))
+
+    await screen.findByRole('button', { name: /^entrar$/i })
+    expect(rememberMock).toHaveBeenCalledWith('dev@aponti.local')
+    expect(forgetMock).not.toHaveBeenCalled()
+  })
+
+  it('chama forget apos login bem sucedido com o checkbox desmarcado', async () => {
+    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
+      data: { session: {}, user: {} },
+      error: null,
+    } as never)
+    const user = userEvent.setup()
+    renderLogin()
+
+    await user.type(screen.getByLabelText('Email'), 'dev@aponti.local')
+    await user.type(screen.getByLabelText('Senha'), 'Test1234!aponti')
+    await user.click(screen.getByRole('button', { name: /entrar/i }))
+
+    await screen.findByRole('button', { name: /^entrar$/i })
+    expect(forgetMock).toHaveBeenCalled()
+    expect(rememberMock).not.toHaveBeenCalled()
+  })
+
+  it('nao chama remember nem forget quando as credenciais sao invalidas', async () => {
+    vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
+      data: { session: null, user: null },
+      error: { message: 'Invalid login credentials' },
+    } as never)
+    const user = userEvent.setup()
+    renderLogin()
+
+    await user.type(screen.getByLabelText('Email'), 'dev@aponti.local')
+    await user.type(screen.getByLabelText('Senha'), 'wrong-password')
+    await user.click(screen.getByRole('checkbox', { name: /lembrar meu email/i }))
+    await user.click(screen.getByRole('button', { name: /entrar/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Email ou senha inválidos.')
+    expect(rememberMock).not.toHaveBeenCalled()
+    expect(forgetMock).not.toHaveBeenCalled()
   })
 })
