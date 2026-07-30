@@ -106,7 +106,7 @@ export default function LoginPage() {
         </div>
 
         <div className="relative text-xs text-primary-foreground/40">
-          © {new Date().getFullYear()} Aponti Academy
+          © {new Date().getFullYear()} Aponti Academy | Desenvolvido por <a href="https://www.linkedin.com/in/leandro-c-s/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground">Leandro Carvalho</a>
         </div>
       </div>
 
