@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
@@ -7,11 +7,14 @@ import { Eye, EyeOff, Loader2, ShieldCheck, LayoutGrid, BarChart3, Rocket } from
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { supabase } from '@/lib/supabase'
+import { useRememberedEmail } from '@/features/auth/useRememberedEmail'
 
 const loginSchema = z.object({
   email: z.string().min(1, 'Informe seu email').email('Email inválido'),
   password: z.string().min(1, 'Informe sua senha'),
+  rememberEmail: z.boolean(),
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
@@ -26,19 +29,37 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [authError, setAuthError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const { rememberedEmail, remember, forget } = useRememberedEmail()
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) })
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: rememberedEmail ?? '',
+      password: '',
+      rememberEmail: rememberedEmail !== null,
+    },
+  })
 
   async function onSubmit(values: LoginFormValues) {
     setAuthError(null)
-    const { error } = await supabase.auth.signInWithPassword(values)
+    const { error } = await supabase.auth.signInWithPassword({
+      email: values.email,
+      password: values.password,
+    })
 
     if (error) {
       setAuthError('Email ou senha inválidos.')
       return
+    }
+
+    if (values.rememberEmail) {
+      remember(values.email)
+    } else {
+      forget()
     }
 
     navigate('/dashboard', { replace: true })
@@ -85,7 +106,7 @@ export default function LoginPage() {
         </div>
 
         <div className="relative text-xs text-primary-foreground/40">
-          © {new Date().getFullYear()} Aponti Academy
+          © {new Date().getFullYear()} Aponti Academy | Desenvolvido por <a href="https://www.linkedin.com/in/leandro-c-s/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground">Leandro Carvalho</a>
         </div>
       </div>
 
@@ -138,6 +159,20 @@ export default function LoginPage() {
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password.message}</p>
               )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Controller
+                name="rememberEmail"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    aria-label="Lembrar meu email"
+                  />
+                )}
+              />
+              <span className="text-sm text-muted-foreground">Lembrar meu email</span>
             </div>
             {authError && (
               <p role="alert" className="text-sm text-destructive">
